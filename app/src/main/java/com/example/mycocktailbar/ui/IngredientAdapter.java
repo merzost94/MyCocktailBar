@@ -13,7 +13,7 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.Vi
     private OnIngredientClickListener listener;
 
     public interface OnIngredientClickListener {
-        void onIngredientClick(Ingredient ingredient);
+        void onIngredientClick(Ingredient ingredient, boolean isChecked);
     }
 
     public IngredientAdapter(OnIngredientClickListener listener) {
@@ -32,9 +32,11 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.Vi
         holder.binding.ingredientName.setText(ingredient.getName());
         holder.binding.ingredientCheckbox.setChecked(ingredient.isHasItem());
 
+        holder.binding.ingredientCheckbox.setOnCheckedChangeListener(null);
+
         holder.binding.ingredientCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             ingredient.setHasItem(isChecked);
-            listener.onIngredientClick(ingredient);
+            listener.onIngredientClick(ingredient, isChecked);
         });
 
         holder.itemView.setOnClickListener(v -> {
