@@ -1,53 +1,51 @@
 package com.example.mycocktailbar.ui;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.mycocktailbar.R;
+import com.example.mycocktailbar.databinding.ItemIngredientBinding;
 import com.example.mycocktailbar.models.Ingredient;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.IngredientViewHolder> {
-
-    private List<Ingredient> ingredients;
-    private final OnIngredientClickListener listener;
+public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.ViewHolder> {
+    private List<Ingredient> ingredients = new ArrayList<>();
+    private OnIngredientClickListener listener;
 
     public interface OnIngredientClickListener {
         void onIngredientClick(Ingredient ingredient);
     }
 
-    public IngredientAdapter(List<Ingredient> ingredients, OnIngredientClickListener listener) {
-        this.ingredients = ingredients;
+    public IngredientAdapter(OnIngredientClickListener listener) {
         this.listener = listener;
     }
 
-    @NonNull
     @Override
-    public IngredientViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_ingredient, parent, false);
-        return new IngredientViewHolder(view);
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        ItemIngredientBinding binding = ItemIngredientBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new ViewHolder(binding);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull IngredientViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
         Ingredient ingredient = ingredients.get(position);
-        holder.nameText.setText(ingredient.getName());
+        holder.binding.ingredientName.setText(ingredient.getName());
+        holder.binding.ingredientCheckbox.setChecked(ingredient.isHasItem());
+
+        holder.binding.ingredientCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            ingredient.setHasItem(isChecked);
+            listener.onIngredientClick(ingredient);
+        });
 
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onIngredientClick(ingredient);
-            }
+            boolean newStatus = !ingredient.isHasItem();
+            holder.binding.ingredientCheckbox.setChecked(newStatus);
         });
     }
 
     @Override
     public int getItemCount() {
-        return ingredients != null ? ingredients.size() : 0;
+        return ingredients.size();
     }
 
     public void setIngredients(List<Ingredient> ingredients) {
@@ -55,11 +53,12 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.In
         notifyDataSetChanged();
     }
 
-    static class IngredientViewHolder extends RecyclerView.ViewHolder {
-        TextView nameText;
-        public IngredientViewHolder(@NonNull View itemView) {
-            super(itemView);
-            nameText = itemView.findViewById(R.id.ingredientName);
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        private final ItemIngredientBinding binding;
+
+        ViewHolder(ItemIngredientBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 }
