@@ -50,6 +50,7 @@ public class IngredientsFragment extends Fragment implements Searchable {
 
     private void setupRecyclerView() {
         adapter = new IngredientAdapter((ingredient, isChecked) -> {
+            // Обновляем статус ингредиента
             viewModel.updateIngredient(ingredient.getId(), isChecked);
         });
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
