@@ -95,6 +95,7 @@ public class CocktailsFragment extends Fragment implements Searchable {
                 clearSearch();
                 currentTabPosition = tab.getPosition();
                 if (currentTabPosition == 0) {
+                    // Принудительно переключаем адаптер в режим доступных
                     updateAvailableTab();
                 } else {
                     List<Cocktail> all = viewModel.getAllCocktails().getValue();

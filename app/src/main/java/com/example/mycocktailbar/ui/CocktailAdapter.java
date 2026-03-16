@@ -17,12 +17,7 @@ public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.ViewHo
     private List<Cocktail> allCocktails = new ArrayList<>();
     private List<Cocktail> currentList = new ArrayList<>();
     private OnCocktailClickListener listener;
-    private DisplayMode displayMode = DisplayMode.AVAILABLE;
-
-    public enum DisplayMode {
-        AVAILABLE,
-        ALL
-    }
+    private boolean isAvailableMode = true;
 
     public interface OnCocktailClickListener {
         void onCocktailClick(Cocktail cocktail);
@@ -40,27 +35,27 @@ public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.ViewHo
 
     public void setAvailableCocktails(List<Cocktail> cocktails) {
         this.availableCocktails = cocktails != null ? cocktails : new ArrayList<>();
-        if (displayMode == DisplayMode.AVAILABLE) {
+        if (isAvailableMode) {
             updateAvailableList();
         }
     }
 
     public void setAlmostAvailableCocktails(List<Cocktail> cocktails) {
         this.almostAvailableCocktails = cocktails != null ? cocktails : new ArrayList<>();
-        if (displayMode == DisplayMode.AVAILABLE) {
+        if (isAvailableMode) {
             updateAvailableList();
         }
     }
 
     public void setAllCocktails(List<Cocktail> cocktails) {
         this.allCocktails = cocktails != null ? cocktails : new ArrayList<>();
-        this.displayMode = DisplayMode.ALL;
+        this.isAvailableMode = false;
         this.currentList = this.allCocktails;
         notifyDataSetChanged();
     }
 
     private void updateAvailableList() {
-        displayMode = DisplayMode.AVAILABLE;
+        isAvailableMode = true;
         currentList.clear();
         currentList.addAll(availableCocktails);
         currentList.addAll(almostAvailableCocktails);
@@ -83,13 +78,13 @@ public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.ViewHo
                 .placeholder(R.drawable.ic_cocktail_placeholder)
                 .into(holder.binding.cocktailImage);
 
-        if (displayMode == DisplayMode.AVAILABLE) {
+        if (isAvailableMode) {
             holder.binding.cocktailStatus.setVisibility(View.VISIBLE);
             if (availableCocktails.contains(cocktail)) {
-                holder.binding.cocktailStatus.setText("✅ Можно приготовить");
+                holder.binding.cocktailStatus.setText("Можно приготовить");
                 holder.binding.cocktailStatus.setTextColor(0xFF4CAF50);
             } else {
-                holder.binding.cocktailStatus.setText("⚠️ Почти готов (не хватает 1-2)");
+                holder.binding.cocktailStatus.setText("Почти готов (не хватает 1-2)");
                 holder.binding.cocktailStatus.setTextColor(0xFFFFA000);
             }
         } else {
