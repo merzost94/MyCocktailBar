@@ -3,91 +3,77 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <com.google.android.material.card.MaterialCardView
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="6dp"
-        app:cardBackgroundColor="@color/white"
-        app:strokeWidth="0dp"
-        android:translationZ="2dp"
-        app:rippleColor="@color/cocktail_light_purple">
+        android:layout_margin="4dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="16dp"
-            android:background="@drawable/card_background">
+            android:padding="12dp">
 
             <ImageView
                 android:id="@+id/cocktailImage"
-                android:layout_width="90dp"
-                android:layout_height="90dp"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_cocktail_placeholder"
-                android:background="@drawable/image_rounded"
-                android:clipToOutline="true"
                 tools:src="@tools:sample/avatars" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="12dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/cocktailName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="@color/black"
-                    android:fontFamily="sans-serif-medium"
                     tools:text="Маргарита" />
 
                 <TextView
                     android:id="@+id/cocktailCategory"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:textSize="14sp"
                     android:textColor="@color/cocktail_purple"
-                    android:fontFamily="sans-serif"
-                    android:background="@drawable/category_badge"
+                    android:background="@color/cocktail_light_purple"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="2dp"
-                    android:maxWidth="120dp"
                     tools:text="Классика" />
 
                 <TextView
                     android:id="@+id/cocktailDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="4dp"
                     android:maxLines="2"
-                    android:textSize="13sp"
-                    android:textColor="@color/gray_600"
-                    android:fontFamily="sans-serif"
+                    android:textSize="12sp"
+                    android:textColor="@color/black"
                     tools:text="Смешать текилу, ликер и сок лайма" />
 
                 <TextView
                     android:id="@+id/cocktailStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="4dp"
                     android:textSize="12sp"
                     android:textStyle="bold"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
-                    android:background="@drawable/status_badge"
                     tools:text="✅ Можно приготовить" />
 
             </LinearLayout>
 
         </LinearLayout>
 
-    </com.google.android.material.card.MaterialCardView>
+    </androidx.cardview.widget.CardView>
 </layout>
