@@ -1,4 +1,4 @@
-package com.example.mycocktailbar.viewmodels;
+package com.example.mycocktailbar.viewmodel;
 
 import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
@@ -6,25 +6,35 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.example.mycocktailbar.database.AppDatabase;
 import com.example.mycocktailbar.models.Cocktail;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CocktailViewModel extends AndroidViewModel {
     private AppDatabase database;
-    private LiveData<List<Cocktail>> allCocktails;
-    private LiveData<List<Cocktail>> availableCocktails;
-    private LiveData<List<Cocktail>> almostAvailableCocktails;
-    private MutableLiveData<List<Cocktail>> searchResults = new MutableLiveData<>();
+    private MutableLiveData<List<Cocktail>> availableCocktails = new MutableLiveData<>(new ArrayList<>());
+    private MutableLiveData<List<Cocktail>> almostAvailableCocktails = new MutableLiveData<>(new ArrayList<>());
+    private MutableLiveData<List<Cocktail>> allCocktails = new MutableLiveData<>(new ArrayList<>());
+    private MutableLiveData<List<Cocktail>> searchResults = new MutableLiveData<>(new ArrayList<>());
 
     public CocktailViewModel(Application application) {
         super(application);
         database = AppDatabase.getInstance(application);
-        allCocktails = database.cocktailDao().getAllCocktails();
-        availableCocktails = database.cocktailIngredientDao().getAvailableCocktails();
-        almostAvailableCocktails = database.cocktailIngredientDao().getAlmostAvailableCocktails();
     }
 
-    public LiveData<List<Cocktail>> getAllCocktails() {
-        return allCocktails;
+    public void loadAllCocktails() {
+        database.cocktailDao().getAllCocktails().observeForever(cocktails -> {
+            allCocktails.postValue(cocktails != null ? cocktails : new ArrayList<>());
+        });
+    }
+
+    public void loadAvailableCocktails() {
+        database.cocktailDao().getAvailableCocktails().observeForever(cocktails -> {
+            availableCocktails.postValue(cocktails != null ? cocktails : new ArrayList<>());
+        });
+
+        database.cocktailDao().getAlmostAvailableCocktails().observeForever(cocktails -> {
+            almostAvailableCocktails.postValue(cocktails != null ? cocktails : new ArrayList<>());
+        });
     }
 
     public LiveData<List<Cocktail>> getAvailableCocktails() {
@@ -35,18 +45,21 @@ public class CocktailViewModel extends AndroidViewModel {
         return almostAvailableCocktails;
     }
 
+    public LiveData<List<Cocktail>> getAllCocktails() {
+        return allCocktails;
+    }
+
     public LiveData<List<Cocktail>> getSearchResults() {
         return searchResults;
     }
 
     public void searchCocktails(String query) {
         if (query == null || query.trim().isEmpty()) {
-            searchResults.setValue(null);
+            searchResults.setValue(new ArrayList<>());
         } else {
-            new Thread(() -> {
-                List<Cocktail> results = database.cocktailDao().searchCocktailsSync("%" + query + "%");
-                searchResults.postValue(results);
-            }).start();
+            database.cocktailDao().searchCocktails("%" + query + "%").observeForever(cocktails -> {
+                searchResults.postValue(cocktails != null ? cocktails : new ArrayList<>());
+            });
         }
     }
 }

@@ -23,8 +23,8 @@ public class CocktailsFragment extends Fragment implements Searchable {
     private FragmentCocktailsBinding binding;
     private CocktailViewModel viewModel;
     private CocktailAdapter adapter;
-    private int currentTabPosition = 0;
-    private boolean isSearchActive = false;
+    private boolean isAllMode = false;
+    private String lastSearchQuery = "";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -57,26 +57,31 @@ public class CocktailsFragment extends Fragment implements Searchable {
         viewModel = new ViewModelProvider(requireActivity()).get(CocktailViewModel.class);
 
         viewModel.getAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            if (currentTabPosition == 0 && !isSearchActive) {
+            if (!isAllMode && lastSearchQuery.isEmpty()) {
                 updateAvailableTab();
             }
         });
 
         viewModel.getAlmostAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            if (currentTabPosition == 0 && !isSearchActive) {
+            if (!isAllMode && lastSearchQuery.isEmpty()) {
                 updateAvailableTab();
             }
         });
 
         viewModel.getAllCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            if (currentTabPosition == 1 && !isSearchActive) {
-                adapter.setAllCocktails(cocktails != null ? cocktails : new ArrayList<>());
+            if (isAllMode && lastSearchQuery.isEmpty()) {
+                adapter.showAllCocktails(cocktails != null ? cocktails : new ArrayList<>());
             }
         });
 
         viewModel.getSearchResults().observe(getViewLifecycleOwner(), cocktails -> {
-            if (isSearchActive && cocktails != null) {
-                adapter.setAllCocktails(cocktails);
+            if (!lastSearchQuery.isEmpty()) {
+                if (cocktails != null && !cocktails.isEmpty()) {
+                    adapter.showSearchResults(cocktails);
+                } else {
+                    Toast.makeText(getContext(), "Ничего не найдено", Toast.LENGTH_SHORT).show();
+                    clearSearch();
+                }
             }
         });
     }
@@ -84,8 +89,10 @@ public class CocktailsFragment extends Fragment implements Searchable {
     private void updateAvailableTab() {
         List<Cocktail> available = viewModel.getAvailableCocktails().getValue();
         List<Cocktail> almost = viewModel.getAlmostAvailableCocktails().getValue();
-        adapter.setAvailableCocktails(available != null ? available : new ArrayList<>());
-        adapter.setAlmostAvailableCocktails(almost != null ? almost : new ArrayList<>());
+        adapter.showAvailableCocktails(
+                available != null ? available : new ArrayList<>(),
+                almost != null ? almost : new ArrayList<>()
+        );
     }
 
     private void setupListeners() {
@@ -93,13 +100,12 @@ public class CocktailsFragment extends Fragment implements Searchable {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 clearSearch();
-                currentTabPosition = tab.getPosition();
-                if (currentTabPosition == 0) {
-                    // Принудительно переключаем адаптер в режим доступных
-                    updateAvailableTab();
+                isAllMode = tab.getPosition() == 1;
+                if (isAllMode) {
+                    viewModel.loadAllCocktails();
                 } else {
-                    List<Cocktail> all = viewModel.getAllCocktails().getValue();
-                    adapter.setAllCocktails(all != null ? all : new ArrayList<>());
+                    viewModel.loadAvailableCocktails();
+                    updateAvailableTab();
                 }
             }
             @Override
@@ -108,37 +114,34 @@ public class CocktailsFragment extends Fragment implements Searchable {
             public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        binding.searchButton.setOnClickListener(v -> {
-            String query = binding.searchInput.getText().toString().trim();
-            performSearch(query);
-        });
-
+        binding.searchButton.setOnClickListener(v -> performSearch());
         binding.searchInput.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                performSearch(binding.searchInput.getText().toString().trim());
+                performSearch();
                 return true;
             }
             return false;
         });
     }
 
-    private void performSearch(String query) {
+    private void performSearch() {
+        String query = binding.searchInput.getText().toString().trim();
         if (query.isEmpty()) {
             clearSearch();
         } else {
-            isSearchActive = true;
+            lastSearchQuery = query;
             viewModel.searchCocktails(query);
         }
     }
 
     private void clearSearch() {
-        isSearchActive = false;
+        lastSearchQuery = "";
         binding.searchInput.setText("");
-        if (currentTabPosition == 0) {
-            updateAvailableTab();
-        } else {
+        if (isAllMode) {
             List<Cocktail> all = viewModel.getAllCocktails().getValue();
-            adapter.setAllCocktails(all != null ? all : new ArrayList<>());
+            adapter.showAllCocktails(all != null ? all : new ArrayList<>());
+        } else {
+            updateAvailableTab();
         }
     }
 
@@ -150,6 +153,7 @@ public class CocktailsFragment extends Fragment implements Searchable {
 
     @Override
     public void search(String query) {
-        performSearch(query);
+        binding.searchInput.setText(query);
+        performSearch();
     }
 }
