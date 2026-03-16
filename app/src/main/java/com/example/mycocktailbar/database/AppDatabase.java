@@ -11,7 +11,7 @@ import com.example.mycocktailbar.models.Ingredient;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Ingredient.class, Cocktail.class, CocktailIngredientCrossRef.class}, version = 21, exportSchema = false)
+@Database(entities = {Ingredient.class, Cocktail.class, CocktailIngredientCrossRef.class}, version = 25, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract CocktailDao cocktailDao();
     public abstract IngredientDao ingredientDao();
