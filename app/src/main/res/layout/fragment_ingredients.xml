@@ -1,46 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/background_dark">
 
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/toggle_bar"
-            android:layout_width="wrap_content"
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            app:singleSelection="true"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:cardCornerRadius="24dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/card_dark">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_all"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="4dp">
+
+                <EditText
+                    android:id="@+id/search_input"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Поиск ингредиентов..."
+                    android:padding="12dp"
+                    android:background="@null"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/gray_500"
+                    android:imeOptions="actionSearch"
+                    android:singleLine="true" />
+
+                <ImageButton
+                    android:id="@+id/search_button"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@android:drawable/ic_menu_search"
+                    android:background="?selectableItemBackgroundBorderless"
+                    android:tint="@color/cocktail_purple" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/background_dark"
+            app:tabIndicatorColor="@color/cocktail_purple"
+            app:tabIndicatorHeight="3dp"
+            app:tabSelectedTextColor="@color/cocktail_purple"
+            app:tabTextColor="@color/gray_500"
+            app:tabMode="fixed">
+
+            <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Все"
-                style="?attr/materialButtonOutlinedStyle" />
+                android:text="Все ингредиенты" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_my_bar"
+            <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="В моём баре"
-                style="?attr/materialButtonOutlinedStyle" />
+                android:text="Мой бар" />
 
-        </com.google.android.material.button.MaterialButtonToggleGroup>
+        </com.google.android.material.tabs.TabLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="8dp"
+            android:layout_height="match_parent"
             android:padding="8dp"
+            android:clipToPadding="false"
+            android:background="@color/background_dark"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toBottomOf="@id/toggle_bar"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            tools:listitem="@layout/item_ingredient" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 </layout>
