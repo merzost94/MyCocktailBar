@@ -7,25 +7,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="@android:color/white">
+        android:background="@color/cocktail_background">
 
-        <LinearLayout
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:background="@color/cocktail_purple">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="MyCocktailBar"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white" />
-
-        </LinearLayout>
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/cocktail_purple"
+            app:title="🍸 Коктейли"
+            app:titleTextColor="@android:color/white"
+            app:titleCentered="true" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -50,47 +41,49 @@
 
             <Button
                 android:id="@+id/search_button"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="Поиск"
                 android:backgroundTint="@color/cocktail_gold"
                 android:textColor="@android:color/white"
-                android:textSize="14sp" />
+                android:textAllCaps="false"
+                android:paddingHorizontal="16dp" />
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggle_view"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:padding="12dp"
-            android:background="@android:color/white">
+            android:layout_margin="16dp"
+            android:layout_gravity="center_horizontal"
+            app:singleSelection="true"
+            app:selectionRequired="true">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_available"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="6dp"
                 android:text="Доступные"
-                android:backgroundTint="@color/cocktail_purple"
-                android:textColor="@android:color/white"
-                android:textAllCaps="false" />
+                android:textSize="14sp"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                app:cornerRadius="24dp"
+                style="?attr/materialButtonOutlinedStyle" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_all"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="6dp"
                 android:text="Все коктейли"
-                android:backgroundTint="@color/cocktail_gold"
-                android:textColor="@android:color/white"
-                android:textAllCaps="false" />
+                android:textSize="14sp"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                app:cornerRadius="24dp"
+                style="?attr/materialButtonOutlinedStyle" />
 
-        </LinearLayout>
+        </com.google.android.material.button.MaterialButtonToggleGroup>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"

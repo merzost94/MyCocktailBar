@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+import com.bumptech.glide.Glide;
+import com.example.mycocktailbar.R;
 import com.example.mycocktailbar.databinding.ActivityCocktailDetailBinding;
 import com.example.mycocktailbar.models.Cocktail;
 import com.example.mycocktailbar.models.Ingredient;
@@ -30,7 +32,6 @@ public class CocktailDetailActivity extends AppCompatActivity {
         binding = ActivityCocktailDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Получаем ID коктейля из Intent
         cocktailId = getIntent().getLongExtra("cocktail_id", -1);
 
         if (cocktailId == -1) {
@@ -41,7 +42,6 @@ public class CocktailDetailActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(CocktailDetailViewModel.class);
 
-        // Загружаем данные
         viewModel.loadCocktail(cocktailId);
         viewModel.loadIngredientsForCocktail(cocktailId);
 
@@ -54,6 +54,13 @@ public class CocktailDetailActivity extends AppCompatActivity {
                 binding.cocktailName.setText(cocktail.getName());
                 binding.cocktailDescription.setText(cocktail.getDescription());
                 binding.cocktailInstructions.setText(cocktail.getInstructions());
+
+                // Загружаем изображение
+                Glide.with(this)
+                        .load(cocktail.getImageUrl())
+                        .placeholder(R.drawable.ic_cocktail_placeholder)
+                        .error(R.drawable.ic_cocktail_placeholder)
+                        .into(binding.cocktailImage);
             } else {
                 Toast.makeText(this, "Коктейль не найден в базе данных", Toast.LENGTH_SHORT).show();
                 finish();

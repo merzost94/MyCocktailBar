@@ -42,4 +42,22 @@ public interface CocktailDao {
 
     @Query("UPDATE ingredients SET hasItem = :hasItem WHERE id = :id")
     void updateIngredientAvailability(long id, boolean hasItem);
+
+    @Query("SELECT c.* FROM cocktails c WHERE c.id IN (" +
+            "SELECT ci.cocktailId FROM cocktail_ingredient_cross_ref ci " +
+            "WHERE ci.ingredientId IN (SELECT id FROM ingredients WHERE hasItem = 1) " +
+            "GROUP BY ci.cocktailId " +
+            "HAVING COUNT(DISTINCT ci.ingredientId) = " +
+            "(SELECT COUNT(*) FROM cocktail_ingredient_cross_ref WHERE cocktailId = ci.cocktailId))")
+    LiveData<List<Cocktail>> getAvailableCocktails();
+
+    @Query("SELECT c.* FROM cocktails c WHERE c.id IN (" +
+            "SELECT ci.cocktailId FROM cocktail_ingredient_cross_ref ci " +
+            "WHERE ci.ingredientId IN (SELECT id FROM ingredients WHERE hasItem = 1) " +
+            "GROUP BY ci.cocktailId " +
+            "HAVING COUNT(DISTINCT ci.ingredientId) >= " +
+            "(SELECT COUNT(*) FROM cocktail_ingredient_cross_ref WHERE cocktailId = ci.cocktailId) - 1 " +
+            "AND COUNT(DISTINCT ci.ingredientId) < " +
+            "(SELECT COUNT(*) FROM cocktail_ingredient_cross_ref WHERE cocktailId = ci.cocktailId))")
+    LiveData<List<Cocktail>> getAlmostAvailableCocktails();
 }

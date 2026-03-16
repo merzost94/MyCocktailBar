@@ -34,8 +34,8 @@ public class CocktailsFragment extends Fragment implements Searchable {
         setupViewModel();
         setupListeners();
 
-        // По умолчанию показываем доступные
-        showAllMode = false;
+        // По умолчанию выбираем "Доступные"
+        binding.toggleView.check(R.id.btn_available);
     }
 
     private void setupRecyclerView() {
@@ -57,33 +57,21 @@ public class CocktailsFragment extends Fragment implements Searchable {
         // Наблюдаем за списком доступных коктейлей
         viewModel.getAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
             if (!showAllMode) {
-                if (cocktails != null) {
-                    adapter.setAvailableCocktails(cocktails);
-                } else {
-                    adapter.setAvailableCocktails(new ArrayList<>());
-                }
+                adapter.setAvailableCocktails(cocktails != null ? cocktails : new ArrayList<>());
             }
         });
 
         // Наблюдаем за списком почти доступных коктейлей
         viewModel.getAlmostAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
             if (!showAllMode) {
-                if (cocktails != null) {
-                    adapter.setAlmostAvailableCocktails(cocktails);
-                } else {
-                    adapter.setAlmostAvailableCocktails(new ArrayList<>());
-                }
+                adapter.setAlmostAvailableCocktails(cocktails != null ? cocktails : new ArrayList<>());
             }
         });
 
         // Наблюдаем за списком всех коктейлей
         viewModel.getAllCocktails().observe(getViewLifecycleOwner(), cocktails -> {
             if (showAllMode) {
-                if (cocktails != null) {
-                    adapter.setAllCocktails(cocktails);
-                } else {
-                    adapter.setAllCocktails(new ArrayList<>());
-                }
+                adapter.setAllCocktails(cocktails != null ? cocktails : new ArrayList<>());
             }
         });
 
@@ -95,6 +83,8 @@ public class CocktailsFragment extends Fragment implements Searchable {
                 Toast.makeText(getContext(), "Ничего не найдено", Toast.LENGTH_SHORT).show();
                 if (showAllMode) {
                     viewModel.loadAllCocktails();
+                } else {
+                    viewModel.loadAvailableCocktails();
                 }
             }
         });
@@ -104,29 +94,21 @@ public class CocktailsFragment extends Fragment implements Searchable {
     }
 
     private void setupListeners() {
-        // Кнопка "Все коктейли"
-        binding.btnAll.setOnClickListener(v -> {
-            showAllMode = true;
-            binding.btnAll.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.cocktail_gold)));
-            binding.btnAvailable.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.gray_600)));
-            viewModel.loadAllCocktails();
+        binding.toggleView.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (checkedId == R.id.btn_all && isChecked) {
+                showAllMode = true;
+                viewModel.loadAllCocktails();
+            } else if (checkedId == R.id.btn_available && isChecked) {
+                showAllMode = false;
+                viewModel.loadAvailableCocktails();
+            }
         });
 
-        // Кнопка "Доступные"
-        binding.btnAvailable.setOnClickListener(v -> {
-            showAllMode = false;
-            binding.btnAvailable.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.cocktail_purple)));
-            binding.btnAll.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.gray_600)));
-            viewModel.loadAvailableCocktails();
-        });
-
-        // Кнопка поиска
         binding.searchButton.setOnClickListener(v -> {
             String query = binding.searchInput.getText().toString().trim();
             performSearch(query);
         });
 
-        // Поиск при нажатии Enter на клавиатуре
         binding.searchInput.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 String query = binding.searchInput.getText().toString().trim();

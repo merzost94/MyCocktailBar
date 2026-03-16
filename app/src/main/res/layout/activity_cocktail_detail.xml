@@ -14,10 +14,21 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <ImageView
+                android:id="@+id/cocktailImage"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_cocktail_placeholder"
+                android:background="@drawable/image_rounded"
+                android:clipToOutline="true"
+                tools:src="@tools:sample/avatars" />
+
             <TextView
                 android:id="@+id/cocktailName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="@color/black"
