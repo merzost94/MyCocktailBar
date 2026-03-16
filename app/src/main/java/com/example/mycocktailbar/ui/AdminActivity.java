@@ -29,7 +29,7 @@ public class AdminActivity extends AppCompatActivity {
     private List<Cocktail> cocktails = new ArrayList<>();
     private List<Ingredient> ingredients = new ArrayList<>();
     private CocktailAdapter cocktailAdapter;
-    private IngredientAdapter ingredientAdapter;
+    private AdminIngredientAdapter ingredientAdapter;  // Изменено
     private Cocktail currentEditingCocktail;
 
     @Override
@@ -57,16 +57,23 @@ public class AdminActivity extends AppCompatActivity {
     private void setupRecyclerViews() {
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Адаптер для коктейлей с возможностью редактирования и удаления
+        // Адаптер для коктейлей
         cocktailAdapter = new CocktailAdapter(cocktail -> {
-            // Клик - редактирование
             showEditCocktailDialog(cocktail);
         });
 
-        // Адаптер для ингредиентов
-        ingredientAdapter = new IngredientAdapter((ingredient, isChecked) -> {
-            // В админке чекбоксы не нужны
-        });
+        // Адаптер для ингредиентов (без чекбоксов)
+        ingredientAdapter = new AdminIngredientAdapter(new AdminIngredientAdapter.OnIngredientActionListener() {
+            @Override
+            public void onEdit(Ingredient ingredient) {
+                showEditIngredientDialog(ingredient);
+            }
+
+            @Override
+            public void onDelete(Ingredient ingredient) {
+                deleteIngredient(ingredient);
+            }
+        }, database);
     }
 
     private void setupTabs() {
@@ -167,10 +174,7 @@ public class AdminActivity extends AppCompatActivity {
                 return;
             }
 
-            // Создаем коктейль
             Cocktail cocktail = new Cocktail(name, description, category, instructions, imageUrl);
-
-            // Переходим к выбору ингредиентов
             showIngredientSelectionDialog(cocktail, false);
         });
 
@@ -193,7 +197,6 @@ public class AdminActivity extends AppCompatActivity {
         TextInputEditText instructionsInput = view.findViewById(R.id.cocktail_instructions_input);
         TextInputEditText imageInput = view.findViewById(R.id.cocktail_image_input);
 
-        // Заполняем существующие данные
         nameInput.setText(cocktail.getName());
         categoryInput.setText(cocktail.getCategory());
         descriptionInput.setText(cocktail.getDescription());
@@ -212,27 +215,24 @@ public class AdminActivity extends AppCompatActivity {
                 return;
             }
 
-            // Обновляем коктейль
             cocktail.setName(name);
             cocktail.setCategory(category);
             cocktail.setDescription(description);
             cocktail.setInstructions(instructions);
             cocktail.setImageUrl(imageUrl);
 
-            // Переходим к выбору ингредиентов
             showIngredientSelectionDialog(cocktail, true);
         });
 
         builder.setNegativeButton("Отмена", null);
         builder.setNeutralButton("Удалить", (dialog, which) -> {
-            showDeleteConfirmationDialog(cocktail);
+            showDeleteCocktailConfirmation(cocktail);
         });
 
         builder.show();
     }
 
     private void showIngredientSelectionDialog(Cocktail cocktail, boolean isEdit) {
-        // Создаем кастомный диалог
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(isEdit ? "Редактировать ингредиенты" : "Выберите ингредиенты");
 
@@ -248,13 +248,11 @@ public class AdminActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        // Загружаем ингредиенты и выбранные
         Executors.newSingleThreadExecutor().execute(() -> {
             List<Ingredient> allIngredients = database.ingredientDao().getAllIngredientsSync();
             List<Long> selectedIds = new ArrayList<>();
 
             if (isEdit) {
-                // Загружаем уже выбранные ингредиенты для этого коктейля
                 List<Ingredient> cocktailIngredients = database.cocktailIngredientDao()
                         .getIngredientsForCocktail(cocktail.getId());
                 for (Ingredient ing : cocktailIngredients) {
@@ -264,9 +262,7 @@ public class AdminActivity extends AppCompatActivity {
 
             List<Long> finalSelectedIds = selectedIds;
             runOnUiThread(() -> {
-                IngredientSelectionAdapter adapter = new IngredientSelectionAdapter((ing, isSelected) -> {
-                    // Можно добавить логику при выборе
-                });
+                IngredientSelectionAdapter adapter = new IngredientSelectionAdapter((ing, isSelected) -> {});
 
                 adapter.submitList(allIngredients);
                 adapter.setSelectedIngredients(finalSelectedIds);
@@ -286,19 +282,13 @@ public class AdminActivity extends AppCompatActivity {
     private void saveCocktailWithIngredients(Cocktail cocktail, List<Long> selectedIngredientIds, boolean isEdit) {
         Executors.newSingleThreadExecutor().execute(() -> {
             if (isEdit) {
-                // Обновляем существующий коктейль
                 database.cocktailDao().updateCocktail(cocktail);
-
-                // Удаляем старые связи
-                // TODO: добавить метод удаления по cocktailId
-                // Пока пропустим, потом добавим
+                // TODO: удалить старые связи и добавить новые
             } else {
-                // Добавляем новый коктейль
                 long cocktailId = database.cocktailDao().insertCocktail(cocktail);
                 cocktail.setId(cocktailId);
             }
 
-            // Добавляем новые связи
             for (long ingredientId : selectedIngredientIds) {
                 CocktailIngredientCrossRef crossRef = new CocktailIngredientCrossRef(cocktail.getId(), ingredientId);
                 database.cocktailIngredientDao().insert(crossRef);
@@ -311,15 +301,13 @@ public class AdminActivity extends AppCompatActivity {
         });
     }
 
-    private void showDeleteConfirmationDialog(Cocktail cocktail) {
+    private void showDeleteCocktailConfirmation(Cocktail cocktail) {
         new AlertDialog.Builder(this)
-                .setTitle("Удаление")
-                .setMessage("Удалить коктейль \"" + cocktail.getName() + "\"?")
+                .setTitle("Удаление коктейля")
+                .setMessage("Удалить \"" + cocktail.getName() + "\"?")
                 .setPositiveButton("Удалить", (dialog, which) -> {
                     Executors.newSingleThreadExecutor().execute(() -> {
                         // TODO: удалить связи, потом коктейль
-                        // database.cocktailIngredientDao().deleteByCocktailId(cocktail.getId());
-                        // database.cocktailDao().deleteCocktail(cocktail);
                         runOnUiThread(() -> {
                             Toast.makeText(this, "Коктейль удален", Toast.LENGTH_SHORT).show();
                         });
@@ -356,6 +344,46 @@ public class AdminActivity extends AppCompatActivity {
 
         builder.setNegativeButton("Отмена", null);
         builder.show();
+    }
+
+    private void showEditIngredientDialog(Ingredient ingredient) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Редактировать ингредиент");
+
+        DialogAddIngredientBinding dialogBinding = DialogAddIngredientBinding.inflate(getLayoutInflater());
+        dialogBinding.ingredientNameInput.setText(ingredient.getName());
+        builder.setView(dialogBinding.getRoot());
+
+        builder.setPositiveButton("Сохранить", (dialog, which) -> {
+            String name = dialogBinding.ingredientNameInput.getText().toString().trim();
+
+            if (name.isEmpty()) {
+                Toast.makeText(this, "Введите название", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            ingredient.setName(name);
+
+            Executors.newSingleThreadExecutor().execute(() -> {
+                database.ingredientDao().updateIngredient(ingredient);
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Ингредиент обновлен", Toast.LENGTH_SHORT).show();
+                });
+            });
+        });
+
+        builder.setNegativeButton("Отмена", null);
+        builder.show();
+    }
+
+    private void deleteIngredient(Ingredient ingredient) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            // TODO: проверить, используется ли ингредиент в коктейлях
+            database.ingredientDao().deleteById((int) ingredient.getId());
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Ингредиент удален", Toast.LENGTH_SHORT).show();
+            });
+        });
     }
 
     @Override

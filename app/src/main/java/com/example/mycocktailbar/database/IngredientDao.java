@@ -30,4 +30,7 @@ public interface IngredientDao {
 
     @Query("DELETE FROM ingredients WHERE id = :id")
     void deleteById(int id);
+
+    @Query("SELECT * FROM ingredients ORDER BY name")
+    List<Ingredient> getAllIngredientsSync();
 }
