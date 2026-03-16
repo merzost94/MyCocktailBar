@@ -20,7 +20,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="🍸 MyCocktailBar"
+                android:text="MyCocktailBar"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/white" />
@@ -53,9 +53,10 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="8dp"
-                android:text="🔍"
+                android:text="Поиск"
                 android:backgroundTint="@color/cocktail_gold"
-                android:textSize="20sp" />
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
 
         </LinearLayout>
 
@@ -73,7 +74,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginEnd="6dp"
-                android:text="🍸 Доступные"
+                android:text="Доступные"
                 android:backgroundTint="@color/cocktail_purple"
                 android:textColor="@android:color/white"
                 android:textAllCaps="false" />
@@ -84,7 +85,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="6dp"
-                android:text="📋 Все коктейли"
+                android:text="Все коктейли"
                 android:backgroundTint="@color/cocktail_gold"
                 android:textColor="@android:color/white"
                 android:textAllCaps="false" />
