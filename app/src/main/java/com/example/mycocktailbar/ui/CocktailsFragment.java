@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,7 +17,7 @@ public class CocktailsFragment extends Fragment implements Searchable {
     private FragmentCocktailsBinding binding;
     private CocktailViewModel viewModel;
     private CocktailAdapter adapter;
-    private boolean showAllCocktails = false;
+    private boolean showAllMode = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -30,6 +32,9 @@ public class CocktailsFragment extends Fragment implements Searchable {
         setupRecyclerView();
         setupViewModel();
         setupListeners();
+
+        // По умолчанию показываем доступные
+        showAllMode = false;
     }
 
     private void setupRecyclerView() {
@@ -44,47 +49,84 @@ public class CocktailsFragment extends Fragment implements Searchable {
     private void setupViewModel() {
         viewModel = new ViewModelProvider(requireActivity()).get(CocktailViewModel.class);
 
+        // Наблюдаем за списком доступных коктейлей
         viewModel.getAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            if (!showAllCocktails) {
+            if (!showAllMode && cocktails != null) {
                 adapter.setAvailableCocktails(cocktails);
             }
         });
 
+        // Наблюдаем за списком почти доступных коктейлей
         viewModel.getAlmostAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            if (!showAllCocktails) {
+            if (!showAllMode && cocktails != null) {
                 adapter.setAlmostAvailableCocktails(cocktails);
             }
         });
 
+        // Наблюдаем за списком всех коктейлей
         viewModel.getAllCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            if (showAllCocktails) {
+            if (showAllMode && cocktails != null) {
                 adapter.setAllCocktails(cocktails);
             }
         });
 
+        // Наблюдаем за результатами поиска
         viewModel.getSearchResults().observe(getViewLifecycleOwner(), cocktails -> {
-            if (cocktails != null && cocktails.size() > 0) {
+            if (cocktails != null && !cocktails.isEmpty()) {
                 adapter.setAllCocktails(cocktails);
+            } else if (cocktails != null && cocktails.isEmpty()) {
+                Toast.makeText(getContext(), "Ничего не найдено", Toast.LENGTH_SHORT).show();
             }
         });
+
+        // Загружаем начальные данные
+        viewModel.loadAvailableCocktails();
     }
 
     private void setupListeners() {
+        // Кнопка "Все коктейли"
         binding.btnAll.setOnClickListener(v -> {
-            showAllCocktails = true;
+            showAllMode = true;
+            binding.btnAll.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.cocktail_gold)));
+            binding.btnAvailable.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.gray_600)));
             viewModel.loadAllCocktails();
         });
 
+        // Кнопка "Доступные"
         binding.btnAvailable.setOnClickListener(v -> {
-            showAllCocktails = false;
-            adapter.setAvailableCocktails(viewModel.getAvailableCocktails().getValue());
-            adapter.setAlmostAvailableCocktails(viewModel.getAlmostAvailableCocktails().getValue());
+            showAllMode = false;
+            binding.btnAvailable.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.cocktail_purple)));
+            binding.btnAll.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.gray_600)));
+            viewModel.loadAvailableCocktails();
         });
 
+        // Кнопка поиска
         binding.searchButton.setOnClickListener(v -> {
             String query = binding.searchInput.getText().toString().trim();
-            search(query);
+            performSearch(query);
         });
+
+        // Поиск при нажатии Enter на клавиатуре
+        binding.searchInput.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                String query = binding.searchInput.getText().toString().trim();
+                performSearch(query);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void performSearch(String query) {
+        if (query.isEmpty()) {
+            if (showAllMode) {
+                viewModel.loadAllCocktails();
+            } else {
+                viewModel.loadAvailableCocktails();
+            }
+        } else {
+            viewModel.searchCocktails(query);
+        }
     }
 
     @Override
@@ -95,12 +137,6 @@ public class CocktailsFragment extends Fragment implements Searchable {
 
     @Override
     public void search(String query) {
-        if (query.isEmpty()) {
-            if (showAllCocktails) {
-                viewModel.loadAllCocktails();
-            }
-        } else {
-            viewModel.searchCocktails(query);
-        }
+        performSearch(query);
     }
 }
