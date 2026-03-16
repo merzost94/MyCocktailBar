@@ -1,6 +1,7 @@
 package com.example.mycocktailbar.ui;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
@@ -74,6 +75,7 @@ public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.ViewHo
                 .into(holder.binding.cocktailImage);
 
         if (!showAllMode) {
+            holder.binding.cocktailStatus.setVisibility(View.VISIBLE);
             if (availableCocktails.contains(cocktail)) {
                 holder.binding.cocktailStatus.setText("✅ Можно приготовить");
                 holder.binding.cocktailStatus.setTextColor(0xFF4CAF50);
@@ -82,7 +84,7 @@ public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.ViewHo
                 holder.binding.cocktailStatus.setTextColor(0xFFFFA000);
             }
         } else {
-            holder.binding.cocktailStatus.setVisibility(ViewGroup.GONE);
+            holder.binding.cocktailStatus.setVisibility(View.GONE);
         }
 
         holder.itemView.setOnClickListener(v -> listener.onCocktailClick(cocktail));
