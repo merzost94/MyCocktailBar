@@ -7,16 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#121212">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="#6200EE"
-            app:title="Коктейли"
-            app:titleTextColor="@android:color/white"
-            app:titleCentered="true" />
+        android:background="@color/background_dark">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -24,7 +15,7 @@
             android:layout_margin="16dp"
             app:cardCornerRadius="24dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="#2C2C2C">
+            app:cardBackgroundColor="@color/card_dark">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -40,8 +31,8 @@
                     android:hint="Поиск коктейлей..."
                     android:padding="12dp"
                     android:background="@null"
-                    android:textColor="@android:color/white"
-                    android:textColorHint="#9E9E9E"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/gray_500"
                     android:imeOptions="actionSearch"
                     android:singleLine="true" />
 
@@ -51,7 +42,7 @@
                     android:layout_height="48dp"
                     android:src="@android:drawable/ic_menu_search"
                     android:background="?selectableItemBackgroundBorderless"
-                    android:tint="#BB86FC" />
+                    android:tint="@color/cocktail_purple" />
 
             </LinearLayout>
 
@@ -61,11 +52,12 @@
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#121212"
-            app:tabIndicatorColor="#BB86FC"
+            android:layout_marginTop="8dp"
+            android:background="@color/background_dark"
+            app:tabIndicatorColor="@color/cocktail_purple"
             app:tabIndicatorHeight="3dp"
-            app:tabSelectedTextColor="#BB86FC"
-            app:tabTextColor="#9E9E9E"
+            app:tabSelectedTextColor="@color/cocktail_purple"
+            app:tabTextColor="@color/gray_500"
             app:tabMode="fixed">
 
             <com.google.android.material.tabs.TabItem
@@ -86,7 +78,7 @@
             android:layout_height="match_parent"
             android:padding="8dp"
             android:clipToPadding="false"
-            android:background="#121212"
+            android:background="@color/background_dark"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_cocktail" />
 
