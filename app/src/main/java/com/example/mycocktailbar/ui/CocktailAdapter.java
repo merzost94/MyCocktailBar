@@ -2,9 +2,9 @@ package com.example.mycocktailbar.ui;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import com.example.mycocktailbar.R;
 import com.example.mycocktailbar.databinding.ItemCocktailBinding;
 import com.example.mycocktailbar.models.Cocktail;
 import java.util.ArrayList;
@@ -13,8 +13,10 @@ import java.util.List;
 public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.ViewHolder> {
     private List<Cocktail> availableCocktails = new ArrayList<>();
     private List<Cocktail> almostAvailableCocktails = new ArrayList<>();
-    private List<Cocktail> fullList = new ArrayList<>();
+    private List<Cocktail> allCocktails = new ArrayList<>();
+    private List<Cocktail> currentList = new ArrayList<>();
     private OnCocktailClickListener listener;
+    private boolean showAllMode = false;
 
     public interface OnCocktailClickListener {
         void onCocktailClick(Cocktail cocktail);
@@ -31,38 +33,56 @@ public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.ViewHo
     }
 
     public void setAvailableCocktails(List<Cocktail> cocktails) {
-        this.availableCocktails = cocktails;
-        updateFullList();
+        this.availableCocktails = cocktails != null ? cocktails : new ArrayList<>();
+        if (!showAllMode) {
+            updateCurrentList();
+        }
     }
 
     public void setAlmostAvailableCocktails(List<Cocktail> cocktails) {
-        this.almostAvailableCocktails = cocktails;
-        updateFullList();
+        this.almostAvailableCocktails = cocktails != null ? cocktails : new ArrayList<>();
+        if (!showAllMode) {
+            updateCurrentList();
+        }
     }
 
-    private void updateFullList() {
-        fullList.clear();
-        fullList.addAll(availableCocktails);
-        fullList.addAll(almostAvailableCocktails);
+    public void setAllCocktails(List<Cocktail> cocktails) {
+        this.allCocktails = cocktails != null ? cocktails : new ArrayList<>();
+        this.showAllMode = true;
+        this.currentList = this.allCocktails;
+        notifyDataSetChanged();
+    }
+
+    private void updateCurrentList() {
+        showAllMode = false;
+        currentList.clear();
+        currentList.addAll(availableCocktails);
+        currentList.addAll(almostAvailableCocktails);
         notifyDataSetChanged();
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Cocktail cocktail = fullList.get(position);
+        Cocktail cocktail = currentList.get(position);
         holder.binding.cocktailName.setText(cocktail.getName());
         holder.binding.cocktailCategory.setText(cocktail.getCategory());
         holder.binding.cocktailDescription.setText(cocktail.getDescription());
 
         Glide.with(holder.itemView.getContext())
                 .load(cocktail.getImageUrl())
-                .placeholder(com.example.mycocktailbar.R.drawable.ic_cocktail_placeholder)
+                .placeholder(R.drawable.ic_cocktail_placeholder)
                 .into(holder.binding.cocktailImage);
 
-        if (availableCocktails.contains(cocktail)) {
-            holder.itemView.setAlpha(1.0f);
+        if (!showAllMode) {
+            if (availableCocktails.contains(cocktail)) {
+                holder.binding.cocktailStatus.setText("✅ Можно приготовить");
+                holder.binding.cocktailStatus.setTextColor(0xFF4CAF50);
+            } else {
+                holder.binding.cocktailStatus.setText("⚠️ Почти готов (не хватает 1-2)");
+                holder.binding.cocktailStatus.setTextColor(0xFFFFA000);
+            }
         } else {
-            holder.itemView.setAlpha(0.7f);
+            holder.binding.cocktailStatus.setVisibility(ViewGroup.GONE);
         }
 
         holder.itemView.setOnClickListener(v -> listener.onCocktailClick(cocktail));
@@ -70,7 +90,7 @@ public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.ViewHo
 
     @Override
     public int getItemCount() {
-        return fullList.size();
+        return currentList.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
