@@ -4,30 +4,26 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.example.mycocktailbar.R;
 import com.example.mycocktailbar.databinding.FragmentCocktailsBinding;
 import com.example.mycocktailbar.viewmodel.CocktailViewModel;
-import com.example.mycocktailbar.models.Cocktail;
+import com.example.mycocktailbar.models.Cocktail; // ИЗМЕНЕНО: model -> models
 import com.google.android.material.tabs.TabLayout;
-import java.util.ArrayList;
+import androidx.appcompat.widget.SearchView;
 import java.util.List;
 
-public class CocktailsFragment extends Fragment implements Searchable {
+public class CocktailsFragment extends Fragment {
     private FragmentCocktailsBinding binding;
     private CocktailViewModel viewModel;
     private CocktailAdapter adapter;
-    private boolean isAllMode = false;
-    private String lastSearchQuery = "";
 
+    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentCocktailsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -35,113 +31,61 @@ public class CocktailsFragment extends Fragment implements Searchable {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        viewModel = new ViewModelProvider(requireActivity()).get(CocktailViewModel.class);
+
         setupRecyclerView();
-        setupViewModel();
-        setupListeners();
-        if (binding.tabLayout != null && binding.tabLayout.getTabCount() > 0) {
-            binding.tabLayout.getTabAt(0).select();
-        }
+        setupSearchView();
+        setupTabLayout();
+
+        viewModel.getCocktails().observe(getViewLifecycleOwner(), cocktails -> {
+            adapter.submitList(cocktails);
+            updateEmptyState(cocktails);
+        });
     }
 
     private void setupRecyclerView() {
-        adapter = new CocktailAdapter(cocktail -> {
-            if (cocktail != null && cocktail.getId() > 0) {
-                startActivity(CocktailDetailActivity.createIntent(requireContext(), cocktail.getId()));
-            }
-        });
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.recyclerView.setAdapter(adapter);
+        adapter = new CocktailAdapter();
+        binding.recyclerViewCocktails.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.recyclerViewCocktails.setAdapter(adapter);
     }
 
-    private void setupViewModel() {
-        viewModel = new ViewModelProvider(requireActivity()).get(CocktailViewModel.class);
-
-        viewModel.getAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            if (!isAllMode && lastSearchQuery.isEmpty()) {
-                updateAvailableTab();
+    private void setupSearchView() {
+        binding.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                viewModel.setSearchQuery(query);
+                return true;
             }
-        });
 
-        viewModel.getAlmostAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            if (!isAllMode && lastSearchQuery.isEmpty()) {
-                updateAvailableTab();
-            }
-        });
-
-        viewModel.getAllCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            if (isAllMode && lastSearchQuery.isEmpty()) {
-                adapter.showAllCocktails(cocktails != null ? cocktails : new ArrayList<>());
-            }
-        });
-
-        viewModel.getSearchResults().observe(getViewLifecycleOwner(), cocktails -> {
-            if (!lastSearchQuery.isEmpty()) {
-                if (cocktails != null && !cocktails.isEmpty()) {
-                    adapter.showSearchResults(cocktails);
-                } else {
-                    Toast.makeText(getContext(), "Ничего не найдено", Toast.LENGTH_SHORT).show();
-                    clearSearch();
-                }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                viewModel.setSearchQuery(newText);
+                return true;
             }
         });
     }
 
-    private void updateAvailableTab() {
-        List<Cocktail> available = viewModel.getAvailableCocktails().getValue();
-        List<Cocktail> almost = viewModel.getAlmostAvailableCocktails().getValue();
-        adapter.showAvailableCocktails(
-                available != null ? available : new ArrayList<>(),
-                almost != null ? almost : new ArrayList<>()
-        );
-    }
-
-    private void setupListeners() {
+    private void setupTabLayout() {
         binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                clearSearch();
-                isAllMode = tab.getPosition() == 1;
-                if (isAllMode) {
-                    viewModel.loadAllCocktails();
-                } else {
-                    viewModel.loadAvailableCocktails();
-                    updateAvailableTab();
-                }
+                viewModel.setMode(tab.getPosition() == 1);
             }
+
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {}
+
             @Override
             public void onTabReselected(TabLayout.Tab tab) {}
         });
-
-        binding.searchButton.setOnClickListener(v -> performSearch());
-        binding.searchInput.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                performSearch();
-                return true;
-            }
-            return false;
-        });
     }
 
-    private void performSearch() {
-        String query = binding.searchInput.getText().toString().trim();
-        if (query.isEmpty()) {
-            clearSearch();
+    private void updateEmptyState(List<Cocktail> cocktails) {
+        if (cocktails == null || cocktails.isEmpty()) {
+            binding.emptyView.setVisibility(View.VISIBLE);
         } else {
-            lastSearchQuery = query;
-            viewModel.searchCocktails(query);
-        }
-    }
-
-    private void clearSearch() {
-        lastSearchQuery = "";
-        binding.searchInput.setText("");
-        if (isAllMode) {
-            List<Cocktail> all = viewModel.getAllCocktails().getValue();
-            adapter.showAllCocktails(all != null ? all : new ArrayList<>());
-        } else {
-            updateAvailableTab();
+            binding.emptyView.setVisibility(View.GONE);
         }
     }
 
@@ -149,11 +93,5 @@ public class CocktailsFragment extends Fragment implements Searchable {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
-    }
-
-    @Override
-    public void search(String query) {
-        binding.searchInput.setText(query);
-        performSearch();
     }
 }

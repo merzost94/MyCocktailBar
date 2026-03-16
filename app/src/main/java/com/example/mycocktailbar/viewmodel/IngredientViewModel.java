@@ -1,47 +1,59 @@
-package com.example.mycocktailbar.viewmodels;
+package com.example.mycocktailbar.viewmodel;
 
 import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import com.example.mycocktailbar.database.AppDatabase;
-import com.example.mycocktailbar.models.Ingredient;
+import com.example.mycocktailbar.database.IngredientDao;
+import com.example.mycocktailbar.database.AppDatabase; // ИЗМЕНЕНО: CocktailDatabase -> AppDatabase
+import com.example.mycocktailbar.models.Ingredient; // ИЗМЕНЕНО: model -> models
 import java.util.List;
+import java.util.ArrayList;
 
 public class IngredientViewModel extends AndroidViewModel {
-    private AppDatabase database;
-    private LiveData<List<Ingredient>> allIngredients;
-    private MutableLiveData<List<Ingredient>> searchResults = new MutableLiveData<>();
+    private IngredientDao ingredientDao;
+    private MediatorLiveData<List<Ingredient>> ingredients = new MediatorLiveData<>();
+    private MutableLiveData<String> searchQuery = new MutableLiveData<>("");
 
     public IngredientViewModel(Application application) {
         super(application);
-        database = AppDatabase.getInstance(application);
-        allIngredients = database.cocktailDao().getAllIngredients();
+        AppDatabase database = AppDatabase.getInstance(application); // ИЗМЕНЕНО
+        ingredientDao = database.ingredientDao();
+        loadIngredients();
     }
 
-    public LiveData<List<Ingredient>> getAllIngredients() {
-        return allIngredients;
+    private void loadIngredients() {
+        ingredients.removeSource(ingredientDao.getAllIngredients());
+
+        LiveData<List<Ingredient>> source = ingredientDao.getAllIngredients();
+
+        ingredients.addSource(source, ingredientList -> {
+            String query = searchQuery.getValue();
+            if (query == null || query.isEmpty()) {
+                ingredients.setValue(ingredientList);
+            } else {
+                List<Ingredient> filtered = new ArrayList<>();
+                for (Ingredient ingredient : ingredientList) {
+                    if (ingredient.getName().toLowerCase().contains(query.toLowerCase())) {
+                        filtered.add(ingredient);
+                    }
+                }
+                ingredients.setValue(filtered);
+            }
+        });
     }
 
-    public LiveData<List<Ingredient>> getSearchResults() {
-        return searchResults;
+    public void setSearchQuery(String query) {
+        searchQuery.setValue(query);
+        loadIngredients();
     }
 
-    public void loadAllIngredients() {
-        allIngredients = database.cocktailDao().getAllIngredients();
+    public LiveData<List<Ingredient>> getIngredients() {
+        return ingredients;
     }
 
-    public void loadIngredientsByStatus(boolean hasItem) {
-        allIngredients = database.cocktailDao().getIngredientsByStatus(hasItem);
-    }
-
-    public void searchIngredients(String query) {
-        if (query == null || query.trim().isEmpty()) {
-            searchResults.setValue(null);
-        } else {
-            database.cocktailDao().searchIngredients("%" + query + "%").observeForever(ingredients -> {
-                searchResults.postValue(ingredients);
-            });
-        }
+    public void updateIngredient(Ingredient ingredient) {
+        new Thread(() -> ingredientDao.updateIngredient(ingredient)).start();
     }
 }

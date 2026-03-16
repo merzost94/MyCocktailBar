@@ -2,51 +2,36 @@ package com.example.mycocktailbar.ui;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.mycocktailbar.databinding.ItemIngredientBinding;
-import com.example.mycocktailbar.models.Ingredient;
+import com.example.mycocktailbar.models.Ingredient; // ИЗМЕНЕНО: model -> models
 import java.util.ArrayList;
 import java.util.List;
 
-public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.ViewHolder> {
+public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.IngredientViewHolder> {
     private List<Ingredient> ingredients = new ArrayList<>();
-    private OnIngredientClickListener listener;
+    private OnItemCheckedListener listener;
 
-    public interface OnIngredientClickListener {
-        void onIngredientClick(Ingredient ingredient, boolean isChecked);
+    public interface OnItemCheckedListener {
+        void onItemChecked(Ingredient ingredient, boolean isChecked);
     }
 
-    public IngredientAdapter(OnIngredientClickListener listener) {
+    public IngredientAdapter(OnItemCheckedListener listener) {
         this.listener = listener;
     }
 
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public IngredientViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ItemIngredientBinding binding = ItemIngredientBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        return new ViewHolder(binding);
+        return new IngredientViewHolder(binding);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull IngredientViewHolder holder, int position) {
         Ingredient ingredient = ingredients.get(position);
-        holder.binding.ingredientName.setText(ingredient.getName());
-
-        // Убираем слушатель перед установкой значения
-        holder.binding.ingredientCheckbox.setOnCheckedChangeListener(null);
-        holder.binding.ingredientCheckbox.setChecked(ingredient.isHasItem());
-
-        // Устанавливаем новый слушатель
-        holder.binding.ingredientCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (buttonView.isPressed()) { // Только если это действие пользователя
-                ingredient.setHasItem(isChecked);
-                listener.onIngredientClick(ingredient, isChecked);
-            }
-        });
-
-        holder.itemView.setOnClickListener(v -> {
-            boolean newStatus = !ingredient.isHasItem();
-            holder.binding.ingredientCheckbox.setChecked(newStatus);
-        });
+        holder.bind(ingredient);
     }
 
     @Override
@@ -54,17 +39,27 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.Vi
         return ingredients.size();
     }
 
-    public void setIngredients(List<Ingredient> ingredients) {
-        this.ingredients = ingredients;
+    public void submitList(List<Ingredient> newList) {
+        this.ingredients = newList != null ? newList : new ArrayList<>();
         notifyDataSetChanged();
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    class IngredientViewHolder extends RecyclerView.ViewHolder {
         private final ItemIngredientBinding binding;
 
-        ViewHolder(ItemIngredientBinding binding) {
+        IngredientViewHolder(ItemIngredientBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+        }
+
+        void bind(Ingredient ingredient) {
+            binding.setIngredient(ingredient);
+            binding.checkbox.setOnCheckedChangeListener(null);
+            binding.checkbox.setChecked(ingredient.isHasItem());
+            binding.checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                listener.onItemChecked(ingredient, isChecked);
+            });
+            binding.executePendingBindings();
         }
     }
 }
