@@ -41,7 +41,7 @@ public class IngredientsFragment extends Fragment implements Searchable {
             AppDatabase.databaseWriteExecutor.execute(() -> {
                 db.cocktailDao().updateIngredientAvailability(ingredient.getId(), isChecked);
                 if (showMyBar) {
-                    loadIngredientsByStatus(true);
+                    requireActivity().runOnUiThread(() -> loadIngredientsByStatus(true));
                 }
             });
         });

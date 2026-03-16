@@ -13,7 +13,6 @@ import com.example.mycocktailbar.database.AppDatabase;
 import com.example.mycocktailbar.models.Ingredient;
 import com.example.mycocktailbar.ui.IngredientAdapter;
 import com.example.mycocktailbar.viewmodels.IngredientViewModel;
-import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -22,6 +21,7 @@ public class IngredientsActivity extends AppCompatActivity {
     private IngredientViewModel viewModel;
     private IngredientAdapter adapter;
     private AppDatabase db;
+    private boolean showMyBar = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,10 +36,12 @@ public class IngredientsActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        adapter = new IngredientAdapter(ingredient -> {
-            boolean newStatus = !ingredient.isHasItem();
+        adapter = new IngredientAdapter((ingredient, isChecked) -> {
             AppDatabase.databaseWriteExecutor.execute(() -> {
-                db.cocktailDao().updateIngredientAvailability(ingredient.getId(), newStatus);
+                db.cocktailDao().updateIngredientAvailability(ingredient.getId(), isChecked);
+                if (showMyBar) {
+                    runOnUiThread(() -> loadIngredientsByStatus(true));
+                }
             });
         });
 
@@ -50,7 +52,7 @@ public class IngredientsActivity extends AppCompatActivity {
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(IngredientViewModel.class);
 
-        viewModel.getAllIngredients().observe(this, ingredients -> {
+        viewModel.getIngredients().observe(this, ingredients -> {
             adapter.setIngredients(ingredients);
         });
     }
@@ -58,13 +60,19 @@ public class IngredientsActivity extends AppCompatActivity {
     private void setupListeners() {
         binding.toggleBar.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             if (checkedId == R.id.btn_my_bar && isChecked) {
-                viewModel.loadIngredientsByStatus(true);
+                showMyBar = true;
+                loadIngredientsByStatus(true);
             } else if (checkedId == R.id.btn_all && isChecked) {
+                showMyBar = false;
                 viewModel.loadAllIngredients();
             }
         });
 
         binding.fabAdd.setOnClickListener(v -> showAddIngredientDialog());
+    }
+
+    private void loadIngredientsByStatus(boolean hasItem) {
+        viewModel.loadIngredientsByStatus(hasItem);
     }
 
     private void showAddIngredientDialog() {
@@ -81,7 +89,14 @@ public class IngredientsActivity extends AppCompatActivity {
                         Ingredient newIngredient = new Ingredient(name, false);
                         AppDatabase.databaseWriteExecutor.execute(() -> {
                             db.cocktailDao().insertIngredient(newIngredient);
-                            runOnUiThread(() -> Toast.makeText(this, "Ингредиент добавлен", Toast.LENGTH_SHORT).show());
+                            runOnUiThread(() -> {
+                                Toast.makeText(this, "Ингредиент добавлен", Toast.LENGTH_SHORT).show();
+                                if (showMyBar) {
+                                    loadIngredientsByStatus(true);
+                                } else {
+                                    viewModel.loadAllIngredients();
+                                }
+                            });
                         });
                     }
                 })
