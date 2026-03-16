@@ -30,104 +30,168 @@ public class CocktailsFragment extends Fragment implements Searchable {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        setupRecyclerView();
-        setupViewModel();
-        setupListeners();
+        try {
+            setupRecyclerView();
+            setupViewModel();
+            setupListeners();
 
-        // По умолчанию выбираем "Доступные"
-        binding.toggleView.check(R.id.btn_available);
+            // По умолчанию выбираем "Доступные"
+            if (binding.toggleView != null) {
+                binding.toggleView.check(R.id.btn_available);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Ошибка загрузки: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void setupRecyclerView() {
-        adapter = new CocktailAdapter(cocktail -> {
-            if (cocktail != null && cocktail.getId() > 0) {
-                startActivity(CocktailDetailActivity.createIntent(requireContext(), cocktail.getId()));
-            } else {
-                Toast.makeText(getContext(), "Ошибка загрузки коктейля", Toast.LENGTH_SHORT).show();
-            }
-        });
+        try {
+            adapter = new CocktailAdapter(cocktail -> {
+                if (cocktail != null && cocktail.getId() > 0) {
+                    startActivity(CocktailDetailActivity.createIntent(requireContext(), cocktail.getId()));
+                } else {
+                    Toast.makeText(getContext(), "Ошибка загрузки коктейля", Toast.LENGTH_SHORT).show();
+                }
+            });
 
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.recyclerView.setAdapter(adapter);
+            if (binding.recyclerView != null) {
+                binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                binding.recyclerView.setAdapter(adapter);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void setupViewModel() {
-        viewModel = new ViewModelProvider(requireActivity()).get(CocktailViewModel.class);
+        try {
+            viewModel = new ViewModelProvider(requireActivity()).get(CocktailViewModel.class);
 
-        // Наблюдаем за списком доступных коктейлей
-        viewModel.getAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            if (!showAllMode) {
-                adapter.setAvailableCocktails(cocktails != null ? cocktails : new ArrayList<>());
+            viewModel.getAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
+                try {
+                    if (!showAllMode && adapter != null) {
+                        adapter.setAvailableCocktails(cocktails != null ? cocktails : new ArrayList<>());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+
+            viewModel.getAlmostAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
+                try {
+                    if (!showAllMode && adapter != null) {
+                        adapter.setAlmostAvailableCocktails(cocktails != null ? cocktails : new ArrayList<>());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+
+            viewModel.getAllCocktails().observe(getViewLifecycleOwner(), cocktails -> {
+                try {
+                    if (showAllMode && adapter != null) {
+                        adapter.setAllCocktails(cocktails != null ? cocktails : new ArrayList<>());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+
+            viewModel.getSearchResults().observe(getViewLifecycleOwner(), cocktails -> {
+                try {
+                    if (cocktails != null && !cocktails.isEmpty() && adapter != null) {
+                        adapter.setAllCocktails(cocktails);
+                    } else if (cocktails != null && cocktails.isEmpty()) {
+                        Toast.makeText(getContext(), "Ничего не найдено", Toast.LENGTH_SHORT).show();
+                        if (showAllMode) {
+                            viewModel.loadAllCocktails();
+                        } else {
+                            viewModel.loadAvailableCocktails();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+
+            viewModel.loadAvailableCocktails();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setupListeners() {
+        try {
+            if (binding.btnAll != null) {
+                binding.btnAll.setOnClickListener(v -> {
+                    try {
+                        showAllMode = true;
+                        if (binding.btnAvailable != null) {
+                            binding.btnAvailable.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.gray_600)));
+                        }
+                        if (binding.btnAll != null) {
+                            binding.btnAll.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.cocktail_gold)));
+                        }
+                        viewModel.loadAllCocktails();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
             }
-        });
 
-        // Наблюдаем за списком почти доступных коктейлей
-        viewModel.getAlmostAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            if (!showAllMode) {
-                adapter.setAlmostAvailableCocktails(cocktails != null ? cocktails : new ArrayList<>());
+            if (binding.btnAvailable != null) {
+                binding.btnAvailable.setOnClickListener(v -> {
+                    try {
+                        showAllMode = false;
+                        if (binding.btnAvailable != null) {
+                            binding.btnAvailable.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.cocktail_purple)));
+                        }
+                        if (binding.btnAll != null) {
+                            binding.btnAll.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.gray_600)));
+                        }
+                        viewModel.loadAvailableCocktails();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
             }
-        });
 
-        // Наблюдаем за списком всех коктейлей
-        viewModel.getAllCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            if (showAllMode) {
-                adapter.setAllCocktails(cocktails != null ? cocktails : new ArrayList<>());
+            if (binding.searchButton != null) {
+                binding.searchButton.setOnClickListener(v -> {
+                    String query = binding.searchInput != null ? binding.searchInput.getText().toString().trim() : "";
+                    performSearch(query);
+                });
             }
-        });
 
-        // Наблюдаем за результатами поиска
-        viewModel.getSearchResults().observe(getViewLifecycleOwner(), cocktails -> {
-            if (cocktails != null && !cocktails.isEmpty()) {
-                adapter.setAllCocktails(cocktails);
-            } else if (cocktails != null && cocktails.isEmpty()) {
-                Toast.makeText(getContext(), "Ничего не найдено", Toast.LENGTH_SHORT).show();
+            if (binding.searchInput != null) {
+                binding.searchInput.setOnEditorActionListener((v, actionId, event) -> {
+                    if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                        String query = binding.searchInput.getText().toString().trim();
+                        performSearch(query);
+                        return true;
+                    }
+                    return false;
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void performSearch(String query) {
+        try {
+            if (query.isEmpty()) {
                 if (showAllMode) {
                     viewModel.loadAllCocktails();
                 } else {
                     viewModel.loadAvailableCocktails();
                 }
-            }
-        });
-
-        // Загружаем начальные данные
-        viewModel.loadAvailableCocktails();
-    }
-
-    private void setupListeners() {
-        binding.toggleView.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-            if (checkedId == R.id.btn_all && isChecked) {
-                showAllMode = true;
-                viewModel.loadAllCocktails();
-            } else if (checkedId == R.id.btn_available && isChecked) {
-                showAllMode = false;
-                viewModel.loadAvailableCocktails();
-            }
-        });
-
-        binding.searchButton.setOnClickListener(v -> {
-            String query = binding.searchInput.getText().toString().trim();
-            performSearch(query);
-        });
-
-        binding.searchInput.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                String query = binding.searchInput.getText().toString().trim();
-                performSearch(query);
-                return true;
-            }
-            return false;
-        });
-    }
-
-    private void performSearch(String query) {
-        if (query.isEmpty()) {
-            if (showAllMode) {
-                viewModel.loadAllCocktails();
             } else {
-                viewModel.loadAvailableCocktails();
+                viewModel.searchCocktails(query);
             }
-        } else {
-            viewModel.searchCocktails(query);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
