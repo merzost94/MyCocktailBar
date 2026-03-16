@@ -2,11 +2,11 @@ package com.example.mycocktailbar.ui;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.mycocktailbar.databinding.ItemAdminIngredientBinding;
+import com.example.mycocktailbar.models.Cocktail;
 import com.example.mycocktailbar.models.Ingredient;
 import com.example.mycocktailbar.database.AppDatabase;
 import java.util.ArrayList;
@@ -65,11 +65,12 @@ public class AdminIngredientAdapter extends RecyclerView.Adapter<AdminIngredient
 
             // Показываем количество коктейлей с этим ингредиентом
             Executors.newSingleThreadExecutor().execute(() -> {
-                List<Long> cocktailIds = database.cocktailIngredientDao()
+                List<Cocktail> cocktails = database.cocktailIngredientDao()
                         .getCocktailsForIngredient(ingredient.getId());
-                int count = cocktailIds.size();
+                int count = cocktails.size();
 
-                runOnUiThread(() -> {
+                // ИСПРАВЛЕНО: используем itemView.post() вместо runOnUiThread
+                itemView.post(() -> {
                     binding.cocktailCount.setText("Используется в " + count + " коктейлях");
                 });
             });
