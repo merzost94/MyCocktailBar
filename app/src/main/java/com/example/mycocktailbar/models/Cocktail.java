@@ -1,28 +1,39 @@
-package com.example.mycocktailbar.models;
+package com.example.mycocktailbar.ui;
 
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import com.example.mycocktailbar.databinding.FragmentCocktailsBinding;
 
-@Entity(tableName = "cocktails")
-public class Cocktail {
-    @PrimaryKey(autoGenerate = true)
-    private long id;
-    private String name;
-    private String instruction;
-    private String category;
+public class CocktailsFragment extends Fragment {
 
-    public Cocktail(String name, String instruction, String category) {
-        this.name = name;
-        this.instruction = instruction;
-        this.category = category;
+    private FragmentCocktailsBinding binding;
+    private CocktailAdapter adapter;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = FragmentCocktailsBinding.inflate(inflater, container, false);
+
+        setupRecyclerView();
+
+        return binding.getRoot();
     }
 
-    public long getId() { return id; }
-    public void setId(long id) { this.id = id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getInstruction() { return instruction; }
-    public void setInstruction(String instruction) { this.instruction = instruction; }
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
+    private void setupRecyclerView() {
+        adapter = new CocktailAdapter(cocktail -> {
+            Intent intent = new Intent(getContext(), CocktailDetailActivity.class);
+            intent.putExtra("COCKTAIL_ID", cocktail.getId());
+            startActivity(intent);
+        });
+
+        binding.recyclerViewCocktails.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.recyclerViewCocktails.setAdapter(adapter);
+    }
 }

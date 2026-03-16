@@ -18,6 +18,9 @@ public interface CocktailDao {
     @Query("SELECT * FROM ingredients WHERE isAvailable = :available ORDER BY name ASC")
     LiveData<List<Ingredient>> getIngredientsByStatus(boolean available);
 
+    @Query("SELECT * FROM cocktails WHERE id = :id")
+    LiveData<Cocktail> getCocktailById(long id);
+
     @Query("SELECT * FROM ingredients WHERE name LIKE '%' || :search || '%' ORDER BY name ASC")
     LiveData<List<Ingredient>> searchIngredients(String search);
 

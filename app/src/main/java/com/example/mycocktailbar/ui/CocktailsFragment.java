@@ -1,5 +1,6 @@
 package com.example.mycocktailbar.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.mycocktailbar.Searchable;
 import com.example.mycocktailbar.database.AppDatabase;
 import com.example.mycocktailbar.databinding.FragmentWithTabsBinding;
+import com.example.mycocktailbar.models.Cocktail;
+
 import java.util.ArrayList;
 
 public class CocktailsFragment extends Fragment implements Searchable {
@@ -25,6 +28,9 @@ public class CocktailsFragment extends Fragment implements Searchable {
         db = AppDatabase.getDatabase(requireContext());
 
         adapter = new CocktailAdapter(cocktail -> {
+            Intent intent = new Intent(getContext(), CocktailDetailActivity.class);
+            intent.putExtra("COCKTAIL_ID", cocktail.getId());
+            startActivity(intent);
         });
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

@@ -4,6 +4,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
+import com.example.mycocktailbar.R;
 import com.example.mycocktailbar.databinding.ItemCocktailBinding;
 import com.example.mycocktailbar.models.Cocktail;
 import java.util.ArrayList;
@@ -25,19 +27,19 @@ public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.Cockta
     }
 
     public void setAvailableCocktails(List<Cocktail> cocktails) {
-        this.availableCocktails = cocktails;
+        this.availableCocktails = cocktails != null ? cocktails : new ArrayList<>();
         combineLists();
     }
 
     public void setAlmostAvailableCocktails(List<Cocktail> cocktails) {
-        this.almostAvailableCocktails = cocktails;
+        this.almostAvailableCocktails = cocktails != null ? cocktails : new ArrayList<>();
         combineLists();
     }
 
     private void combineLists() {
         fullList.clear();
-        if (availableCocktails != null) fullList.addAll(availableCocktails);
-        if (almostAvailableCocktails != null) fullList.addAll(almostAvailableCocktails);
+        fullList.addAll(availableCocktails);
+        fullList.addAll(almostAvailableCocktails);
         notifyDataSetChanged();
     }
 
@@ -54,6 +56,13 @@ public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.Cockta
         Cocktail cocktail = fullList.get(position);
         holder.binding.cocktailName.setText(cocktail.getName());
         holder.binding.cocktailCategory.setText("Категория: " + cocktail.getCategory());
+
+        Glide.with(holder.itemView.getContext())
+                .load(cocktail.getImageUrl())
+                .placeholder(R.drawable.ic_launcher_foreground)
+                .error(R.drawable.ic_launcher_foreground)
+                .centerCrop()
+                .into(holder.binding.cocktailImage);
 
         if (availableCocktails.contains(cocktail)) {
             holder.binding.cocktailStatus.setText("Можно приготовить");

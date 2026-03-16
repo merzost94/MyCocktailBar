@@ -1,32 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Добавить новый элемент"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="20dp" />
+
     <EditText
         android:id="@+id/editName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Название коктейля" />
+        android:hint="Название (н-р: Водка или Маргарита)" />
 
     <EditText
         android:id="@+id/editCategory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Категория (напр. Крепкие)" />
+        android:hint="Категория (н-р: Алкоголь или Крепкие)"
+        android:layout_marginTop="10dp" />
 
     <EditText
-        android:id="@+id/editInstruction"
+        android:id="@+id/editDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Инструкция по приготовлению"
-        android:minLines="3" />
+        android:hint="Описание (только для коктейлей)"
+        android:layout_marginTop="10dp" />
 
     <Button
-        android:id="@+id/btnSave"
+        android:id="@+id/btnAddIngredient"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Добавить коктейль" />
+        android:text="Сохранить как Ингредиент"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:id="@+id/btnAddCocktail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Сохранить как Коктейль"
+        android:layout_marginTop="10dp" />
+
 </LinearLayout>
