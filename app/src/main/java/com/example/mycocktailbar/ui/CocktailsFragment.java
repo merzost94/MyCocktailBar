@@ -13,15 +13,17 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.mycocktailbar.R;
 import com.example.mycocktailbar.databinding.FragmentCocktailsBinding;
-import com.example.mycocktailbar.viewmodels.CocktailViewModel;
+import com.example.mycocktailbar.viewmodel.CocktailViewModel;
 import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
+import java.util.List;
 
 public class CocktailsFragment extends Fragment implements Searchable {
     private FragmentCocktailsBinding binding;
     private CocktailViewModel viewModel;
     private CocktailAdapter adapter;
-    private boolean showAllMode = false;
+    private int currentTabPosition = 0; // 0 - доступные, 1 - все коктейли
+    private boolean isSearchActive = false;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -66,56 +68,74 @@ public class CocktailsFragment extends Fragment implements Searchable {
     private void setupViewModel() {
         viewModel = new ViewModelProvider(requireActivity()).get(CocktailViewModel.class);
 
-        // Загружаем данные
-        viewModel.loadAvailableCocktails();
-
         // Наблюдаем за списком доступных коктейлей
-        if (viewModel.getAvailableCocktails() != null) {
-            viewModel.getAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-                if (!showAllMode && cocktails != null) {
-                    adapter.setAvailableCocktails(cocktails);
-                } else if (!showAllMode) {
-                    adapter.setAvailableCocktails(new ArrayList<>());
-                }
-            });
-        }
+        viewModel.getAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
+            if (currentTabPosition == 0 && !isSearchActive) {
+                updateAdapterWithCocktails(cocktails);
+            }
+        });
 
         // Наблюдаем за списком почти доступных коктейлей
-        if (viewModel.getAlmostAvailableCocktails() != null) {
-            viewModel.getAlmostAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-                if (!showAllMode && cocktails != null) {
-                    adapter.setAlmostAvailableCocktails(cocktails);
-                } else if (!showAllMode) {
-                    adapter.setAlmostAvailableCocktails(new ArrayList<>());
-                }
-            });
-        }
+        viewModel.getAlmostAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
+            if (currentTabPosition == 0 && !isSearchActive) {
+                // Этот список автоматически обновится через updateAdapterWithCocktails
+                // так как он вызывается из getAvailableCocktails
+            }
+        });
 
         // Наблюдаем за списком всех коктейлей
-        if (viewModel.getAllCocktails() != null) {
-            viewModel.getAllCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-                if (showAllMode && cocktails != null) {
-                    adapter.setAllCocktails(cocktails);
-                } else if (showAllMode) {
-                    adapter.setAllCocktails(new ArrayList<>());
-                }
-            });
-        }
+        viewModel.getAllCocktails().observe(getViewLifecycleOwner(), cocktails -> {
+            if (currentTabPosition == 1 && !isSearchActive) {
+                updateAdapterWithCocktails(cocktails);
+            }
+        });
 
         // Наблюдаем за результатами поиска
-        if (viewModel.getSearchResults() != null) {
-            viewModel.getSearchResults().observe(getViewLifecycleOwner(), cocktails -> {
-                if (cocktails != null && !cocktails.isEmpty()) {
-                    adapter.setAllCocktails(cocktails);
-                } else if (cocktails != null && cocktails.isEmpty()) {
-                    Toast.makeText(getContext(), "Ничего не найдено", Toast.LENGTH_SHORT).show();
-                    if (showAllMode) {
-                        viewModel.loadAllCocktails();
-                    } else {
-                        viewModel.loadAvailableCocktails();
-                    }
-                }
-            });
+        viewModel.getSearchResults().observe(getViewLifecycleOwner(), cocktails -> {
+            if (isSearchActive && cocktails != null) {
+                adapter.setAllCocktails(cocktails);
+            }
+        });
+
+        // Наблюдаем за текущим списком (для поиска)
+        viewModel.getCurrentDisplayList().observe(getViewLifecycleOwner(), cocktails -> {
+            if (isSearchActive && cocktails != null && !cocktails.isEmpty()) {
+                adapter.setAllCocktails(cocktails);
+            } else if (isSearchActive && cocktails != null && cocktails.isEmpty()) {
+                // Ничего не найдено, показываем пустой список
+                adapter.setAllCocktails(new ArrayList<>());
+            }
+        });
+    }
+
+    private void updateAdapterWithCocktails(List<Cocktail> cocktails) {
+        if (cocktails == null) {
+            adapter.setAvailableCocktails(new ArrayList<>());
+            adapter.setAlmostAvailableCocktails(new ArrayList<>());
+            return;
+        }
+
+        if (currentTabPosition == 0) {
+            // Для вкладки "Доступные" нужно разделить на доступные и почти доступные
+            List<Cocktail> available = new ArrayList<>();
+            List<Cocktail> almost = new ArrayList<>();
+
+            // Получаем актуальные списки из ViewModel
+            List<Cocktail> availableFromDb = viewModel.getAvailableCocktails().getValue();
+            List<Cocktail> almostFromDb = viewModel.getAlmostAvailableCocktails().getValue();
+
+            if (availableFromDb != null) {
+                available.addAll(availableFromDb);
+            }
+            if (almostFromDb != null) {
+                almost.addAll(almostFromDb);
+            }
+
+            adapter.setAvailableCocktails(available);
+            adapter.setAlmostAvailableCocktails(almost);
+        } else {
+            // Для вкладки "Все коктейли" просто показываем все
+            adapter.setAllCocktails(cocktails);
         }
     }
 
@@ -125,12 +145,24 @@ public class CocktailsFragment extends Fragment implements Searchable {
                 @Override
                 public void onTabSelected(TabLayout.Tab tab) {
                     try {
-                        if (tab.getPosition() == 0) {
-                            showAllMode = false;
-                            viewModel.loadAvailableCocktails();
+                        // Сбрасываем поиск при переключении табов
+                        clearSearch();
+
+                        currentTabPosition = tab.getPosition();
+
+                        if (currentTabPosition == 0) {
+                            // Доступные коктейли
+                            List<Cocktail> available = viewModel.getAvailableCocktails().getValue();
+                            List<Cocktail> almost = viewModel.getAlmostAvailableCocktails().getValue();
+
+                            if (available != null || almost != null) {
+                                adapter.setAvailableCocktails(available != null ? available : new ArrayList<>());
+                                adapter.setAlmostAvailableCocktails(almost != null ? almost : new ArrayList<>());
+                            }
                         } else {
-                            showAllMode = true;
-                            viewModel.loadAllCocktails();
+                            // Все коктейли
+                            List<Cocktail> all = viewModel.getAllCocktails().getValue();
+                            adapter.setAllCocktails(all != null ? all : new ArrayList<>());
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -167,16 +199,32 @@ public class CocktailsFragment extends Fragment implements Searchable {
     private void performSearch(String query) {
         try {
             if (query.isEmpty()) {
-                if (showAllMode) {
-                    viewModel.loadAllCocktails();
-                } else {
-                    viewModel.loadAvailableCocktails();
-                }
+                clearSearch();
             } else {
+                isSearchActive = true;
                 viewModel.searchCocktails(query);
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void clearSearch() {
+        isSearchActive = false;
+        if (binding.searchInput != null) {
+            binding.searchInput.setText("");
+        }
+        viewModel.clearSearch();
+
+        // Возвращаем отображение в зависимости от текущей вкладки
+        if (currentTabPosition == 0) {
+            List<Cocktail> available = viewModel.getAvailableCocktails().getValue();
+            List<Cocktail> almost = viewModel.getAlmostAvailableCocktails().getValue();
+            adapter.setAvailableCocktails(available != null ? available : new ArrayList<>());
+            adapter.setAlmostAvailableCocktails(almost != null ? almost : new ArrayList<>());
+        } else {
+            List<Cocktail> all = viewModel.getAllCocktails().getValue();
+            adapter.setAllCocktails(all != null ? all : new ArrayList<>());
         }
     }
 

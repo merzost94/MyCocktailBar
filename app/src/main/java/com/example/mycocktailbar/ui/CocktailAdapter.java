@@ -17,7 +17,12 @@ public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.ViewHo
     private List<Cocktail> allCocktails = new ArrayList<>();
     private List<Cocktail> currentList = new ArrayList<>();
     private OnCocktailClickListener listener;
-    private boolean showAllMode = false;
+    private DisplayMode displayMode = DisplayMode.AVAILABLE;
+
+    public enum DisplayMode {
+        AVAILABLE,
+        ALL
+    }
 
     public interface OnCocktailClickListener {
         void onCocktailClick(Cocktail cocktail);
@@ -35,34 +40,30 @@ public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.ViewHo
 
     public void setAvailableCocktails(List<Cocktail> cocktails) {
         this.availableCocktails = cocktails != null ? cocktails : new ArrayList<>();
-        if (!showAllMode) {
-            updateCurrentList();
+        if (displayMode == DisplayMode.AVAILABLE) {
+            updateAvailableList();
         }
     }
 
     public void setAlmostAvailableCocktails(List<Cocktail> cocktails) {
         this.almostAvailableCocktails = cocktails != null ? cocktails : new ArrayList<>();
-        if (!showAllMode) {
-            updateCurrentList();
+        if (displayMode == DisplayMode.AVAILABLE) {
+            updateAvailableList();
         }
     }
 
     public void setAllCocktails(List<Cocktail> cocktails) {
         this.allCocktails = cocktails != null ? cocktails : new ArrayList<>();
-        this.showAllMode = true;
+        this.displayMode = DisplayMode.ALL;
         this.currentList = this.allCocktails;
         notifyDataSetChanged();
     }
 
-    private void updateCurrentList() {
-        showAllMode = false;
-        currentList = new ArrayList<>();
-        if (availableCocktails != null) {
-            currentList.addAll(availableCocktails);
-        }
-        if (almostAvailableCocktails != null) {
-            currentList.addAll(almostAvailableCocktails);
-        }
+    private void updateAvailableList() {
+        displayMode = DisplayMode.AVAILABLE;
+        currentList.clear();
+        currentList.addAll(availableCocktails);
+        currentList.addAll(almostAvailableCocktails);
         notifyDataSetChanged();
     }
 
@@ -82,13 +83,13 @@ public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.ViewHo
                 .placeholder(R.drawable.ic_cocktail_placeholder)
                 .into(holder.binding.cocktailImage);
 
-        if (!showAllMode) {
+        if (displayMode == DisplayMode.AVAILABLE) {
             holder.binding.cocktailStatus.setVisibility(View.VISIBLE);
             if (availableCocktails.contains(cocktail)) {
-                holder.binding.cocktailStatus.setText("Можно приготовить");
+                holder.binding.cocktailStatus.setText("✅ Можно приготовить");
                 holder.binding.cocktailStatus.setTextColor(0xFF4CAF50);
             } else {
-                holder.binding.cocktailStatus.setText("Почти готов (не хватает 1-2)");
+                holder.binding.cocktailStatus.setText("⚠️ Почти готов (не хватает 1-2)");
                 holder.binding.cocktailStatus.setTextColor(0xFFFFA000);
             }
         } else {
