@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- БАЗОВЫЕ ЦВЕТА -->
+    <!-- БАЗОВЫЕ ЦВЕТЫ -->
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
 
@@ -15,6 +15,7 @@
     <color name="background_dark">#121212</color>
     <color name="surface_dark">#1E1E1E</color>
     <color name="card_dark">#2D2D2D</color>
+    <color name="card_background">#2D2D2D</color>
 
     <!-- Цвета для светлой темы -->
     <color name="background_light">#F5F5F5</color>
@@ -31,6 +32,14 @@
     <color name="text_secondary">#757575</color>
     <color name="text_hint">#9E9E9E</color>
 
+    <!-- Цвета для Bottom Navigation -->
+    <color name="bottom_nav_icon_default">#B0B0B0</color>
+    <color name="bottom_nav_icon_selected">#BB86FC</color>
+    <color name="bottom_nav_background">#1E1E1E</color>
+
+    <!-- Color state list для bottom navigation -->
+    <color name="bottom_nav_color">@color/bottom_nav_selector</color>
+
     <!-- Цвета для SearchView -->
     <color name="search_background">#2D2D2D</color>
     <color name="search_text">#FFFFFF</color>
@@ -46,9 +55,9 @@
     <color name="accent_purple">#BB86FC</color>
     <color name="accent_purple_light">#E1BEE7</color>
     <color name="accent_gold">#FFC107</color>
-    <color name="accent_dark_gold">#FFA000</color>  <!-- Добавлено! -->
+    <color name="accent_dark_gold">#FFA000</color>
 
-    <!-- Оттенки серого для темной темы -->
+    <!-- Оттенки серого -->
     <color name="gray_800">#2D2D2D</color>
     <color name="gray_700">#3D3D3D</color>
     <color name="gray_600">#4D4D4D</color>
@@ -63,6 +72,7 @@
     <color name="cocktail_dark_purple">#6200EE</color>
     <color name="cocktail_light_purple">#E1BEE7</color>
     <color name="cocktail_gold">#FFC107</color>
-    <color name="cocktail_dark_gold">#FFA000</color>  <!-- Добавлено! -->
+    <color name="cocktail_dark_gold">#FFA000</color>
     <color name="cocktail_green">#4CAF50</color>
+    <color name="transparent">#00000000</color>
 </resources>
