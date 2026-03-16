@@ -1,16 +1,17 @@
 package com.example.mycocktailbar.ui;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import com.example.mycocktailbar.R;
 import com.example.mycocktailbar.database.AppDatabase;
 import com.example.mycocktailbar.databinding.ActivityAdminBinding;
 import com.example.mycocktailbar.models.Cocktail;
 import com.example.mycocktailbar.models.Ingredient;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
-import android.view.LayoutInflater;
-import android.view.View;
 
 public class AdminActivity extends AppCompatActivity {
     private ActivityAdminBinding binding;
@@ -29,14 +30,14 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     private void showAddCocktailDialog() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_add_cocktail, null);
         TextInputEditText nameInput = dialogView.findViewById(R.id.cocktail_name_input);
         TextInputEditText descInput = dialogView.findViewById(R.id.cocktail_description_input);
         TextInputEditText categoryInput = dialogView.findViewById(R.id.cocktail_category_input);
 
-        builder.setTitle("Добавить коктейль")
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Добавить коктейль")
                 .setView(dialogView)
                 .setPositiveButton("Добавить", (dialog, which) -> {
                     String name = nameInput.getText().toString().trim();
@@ -55,13 +56,13 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     private void showAddIngredientDialog() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_add_ingredient, null);
+        View dialogView = inflater.inflate(R.layout.dialog_add_ingredient_admin, null);
         TextInputEditText nameInput = dialogView.findViewById(R.id.ingredient_name_input);
         TextInputEditText categoryInput = dialogView.findViewById(R.id.ingredient_category_input);
 
-        builder.setTitle("Добавить ингредиент")
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Добавить ингредиент")
                 .setView(dialogView)
                 .setPositiveButton("Добавить", (dialog, which) -> {
                     String name = nameInput.getText().toString().trim();

@@ -17,7 +17,6 @@ public class IngredientsFragment extends Fragment implements Searchable {
     private IngredientViewModel viewModel;
     private IngredientAdapter adapter;
     private AppDatabase db;
-    private boolean showMyBar = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -56,11 +55,10 @@ public class IngredientsFragment extends Fragment implements Searchable {
     }
 
     private void setupListeners() {
-        binding.toggleBar.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            showMyBar = isChecked;
-            if (isChecked) {
+        binding.toggleBar.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (checkedId == R.id.btn_my_bar && isChecked) {
                 viewModel.loadIngredientsByStatus(true);
-            } else {
+            } else if (checkedId == R.id.btn_all && isChecked) {
                 viewModel.loadAllIngredients();
             }
         });
@@ -75,11 +73,7 @@ public class IngredientsFragment extends Fragment implements Searchable {
     @Override
     public void search(String query) {
         if (query == null || query.trim().isEmpty()) {
-            if (showMyBar) {
-                viewModel.loadIngredientsByStatus(true);
-            } else {
-                viewModel.loadAllIngredients();
-            }
+            viewModel.loadAllIngredients();
         } else {
             viewModel.searchIngredients(query);
         }

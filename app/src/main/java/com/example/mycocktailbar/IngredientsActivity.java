@@ -1,6 +1,8 @@
 package com.example.mycocktailbar;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -10,9 +12,9 @@ import com.example.mycocktailbar.database.AppDatabase;
 import com.example.mycocktailbar.models.Ingredient;
 import com.example.mycocktailbar.ui.IngredientAdapter;
 import com.example.mycocktailbar.viewmodels.IngredientViewModel;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
-import android.view.LayoutInflater;
 
 public class IngredientsActivity extends AppCompatActivity {
     private ActivityIngredientsBinding binding;
@@ -53,24 +55,24 @@ public class IngredientsActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        binding.fabAdd.setOnClickListener(v -> showAddIngredientDialog());
-
-        binding.toggleBar.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
+        binding.toggleBar.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (checkedId == R.id.btn_my_bar && isChecked) {
                 viewModel.loadIngredientsByStatus(true);
-            } else {
+            } else if (checkedId == R.id.btn_all && isChecked) {
                 viewModel.loadAllIngredients();
             }
         });
+
+        binding.fabAdd.setOnClickListener(v -> showAddIngredientDialog());
     }
 
     private void showAddIngredientDialog() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_add_ingredient, null);
         TextInputEditText editText = dialogView.findViewById(R.id.ingredient_name_input);
 
-        builder.setTitle("Добавить ингредиент")
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Добавить ингредиент")
                 .setView(dialogView)
                 .setPositiveButton("Добавить", (dialog, which) -> {
                     String name = editText.getText().toString().trim();
