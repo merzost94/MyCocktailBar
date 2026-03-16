@@ -3,11 +3,14 @@ package com.example.mycocktailbar.ui;
 import android.os.Bundle;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.mycocktailbar.R;
 import com.example.mycocktailbar.database.AppDatabase;
 import com.example.mycocktailbar.databinding.ActivityAdminBinding;
 import com.example.mycocktailbar.models.Cocktail;
 import com.example.mycocktailbar.models.Ingredient;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
+import android.view.LayoutInflater;
+import android.view.View;
 
 public class AdminActivity extends AppCompatActivity {
     private ActivityAdminBinding binding;
@@ -19,41 +22,57 @@ public class AdminActivity extends AppCompatActivity {
         binding = ActivityAdminBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        db = AppDatabase.getDatabase(this);
+        db = AppDatabase.getInstance(this);
 
-        binding.btnAddIngredient.setOnClickListener(v -> saveIngredient());
-        binding.btnAddCocktail.setOnClickListener(v -> saveCocktail());
+        binding.btnAddCocktail.setOnClickListener(v -> showAddCocktailDialog());
+        binding.btnAddIngredient.setOnClickListener(v -> showAddIngredientDialog());
     }
 
-    private void saveIngredient() {
-        String name = binding.editName.getText().toString().trim();
-        String category = binding.editCategory.getText().toString().trim();
+    private void showAddCocktailDialog() {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_add_cocktail, null);
+        TextInputEditText nameInput = dialogView.findViewById(R.id.cocktail_name_input);
+        TextInputEditText descInput = dialogView.findViewById(R.id.cocktail_description_input);
+        TextInputEditText categoryInput = dialogView.findViewById(R.id.cocktail_category_input);
 
-        if (name.isEmpty()) return;
+        builder.setTitle("Добавить коктейль")
+                .setView(dialogView)
+                .setPositiveButton("Добавить", (dialog, which) -> {
+                    String name = nameInput.getText().toString().trim();
+                    String desc = descInput.getText().toString().trim();
+                    String category = categoryInput.getText().toString().trim();
 
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            db.cocktailDao().insertIngredient(new Ingredient(name, category, false, R.drawable.ic_launcher_foreground));
-            runOnUiThread(() -> {
-                Toast.makeText(this, "Ингредиент добавлен", Toast.LENGTH_SHORT).show();
-                binding.editName.setText("");
-            });
-        });
+                    if (!name.isEmpty() && !desc.isEmpty() && !category.isEmpty()) {
+                        AppDatabase.databaseWriteExecutor.execute(() -> {
+                            db.cocktailDao().insertCocktail(new Cocktail(name, desc, category, "", ""));
+                            runOnUiThread(() -> Toast.makeText(this, "Коктейль добавлен", Toast.LENGTH_SHORT).show());
+                        });
+                    }
+                })
+                .setNegativeButton("Отмена", null)
+                .show();
     }
 
-    private void saveCocktail() {
-        String name = binding.editName.getText().toString().trim();
-        String desc = binding.editDescription.getText().toString().trim();
-        String category = binding.editCategory.getText().toString().trim();
+    private void showAddIngredientDialog() {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_add_ingredient, null);
+        TextInputEditText nameInput = dialogView.findViewById(R.id.ingredient_name_input);
+        TextInputEditText categoryInput = dialogView.findViewById(R.id.ingredient_category_input);
 
-        if (name.isEmpty()) return;
-
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            db.cocktailDao().insertCocktail(new Cocktail(name, desc, category, "", ""));
-            runOnUiThread(() -> {
-                Toast.makeText(this, "Коктейль добавлен", Toast.LENGTH_SHORT).show();
-                binding.editName.setText("");
-                binding.editDescription.setText("");
-            });
-        });
+        builder.setTitle("Добавить ингредиент")
+                .setView(dialogView)
+                .setPositiveButton("Добавить", (dialog, which) -> {
+                    String name = nameInput.getText().toString().trim();
+                    if (!name.isEmpty()) {
+                        AppDatabase.databaseWriteExecutor.execute(() -> {
+                            db.cocktailDao().insertIngredient(new Ingredient(name, false));
+                            runOnUiThread(() -> Toast.makeText(this, "Ингредиент добавлен", Toast.LENGTH_SHORT).show());
+                        });
+                    }
+                })
+                .setNegativeButton("Отмена", null)
+                .show();
     }
 }

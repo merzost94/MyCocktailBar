@@ -5,6 +5,7 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 import com.example.mycocktailbar.models.Cocktail;
+import com.example.mycocktailbar.models.Ingredient;
 import java.util.List;
 
 @Dao
@@ -26,4 +27,19 @@ public interface CocktailDao {
 
     @Query("SELECT * FROM cocktails WHERE category = :category")
     LiveData<List<Cocktail>> getCocktailsByCategory(String category);
+
+    @Query("SELECT * FROM ingredients ORDER BY name")
+    LiveData<List<Ingredient>> getAllIngredients();
+
+    @Query("SELECT * FROM ingredients WHERE hasItem = :hasItem")
+    LiveData<List<Ingredient>> getIngredientsByStatus(boolean hasItem);
+
+    @Query("SELECT * FROM ingredients WHERE name LIKE :search")
+    LiveData<List<Ingredient>> searchIngredients(String search);
+
+    @Insert
+    long insertIngredient(Ingredient ingredient);
+
+    @Query("UPDATE ingredients SET hasItem = :hasItem WHERE id = :id")
+    void updateIngredientAvailability(long id, boolean hasItem);
 }

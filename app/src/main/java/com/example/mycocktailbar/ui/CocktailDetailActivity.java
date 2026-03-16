@@ -1,5 +1,7 @@
 package com.example.mycocktailbar.ui;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,7 +17,12 @@ import java.util.stream.Collectors;
 public class CocktailDetailActivity extends AppCompatActivity {
     private ActivityCocktailDetailBinding binding;
     private CocktailDetailViewModel viewModel;
-    private Cocktail currentCocktail;
+
+    public static Intent createIntent(Context context, long cocktailId) {
+        Intent intent = new Intent(context, CocktailDetailActivity.class);
+        intent.putExtra("cocktail_id", cocktailId);
+        return intent;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +47,6 @@ public class CocktailDetailActivity extends AppCompatActivity {
     private void setupObservers() {
         viewModel.getCocktail().observe(this, cocktail -> {
             if (cocktail != null) {
-                currentCocktail = cocktail;
                 binding.cocktailName.setText(cocktail.getName());
                 binding.cocktailDescription.setText(cocktail.getDescription());
                 binding.cocktailInstructions.setText(cocktail.getInstructions());

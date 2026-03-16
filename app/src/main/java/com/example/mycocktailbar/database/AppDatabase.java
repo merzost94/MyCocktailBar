@@ -7,14 +7,17 @@ import androidx.room.RoomDatabase;
 import com.example.mycocktailbar.models.Cocktail;
 import com.example.mycocktailbar.models.CocktailIngredientCrossRef;
 import com.example.mycocktailbar.models.Ingredient;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-@Database(entities = {Ingredient.class, Cocktail.class, CocktailIngredientCrossRef.class}, version = 19, exportSchema = false)
+@Database(entities = {Ingredient.class, Cocktail.class, CocktailIngredientCrossRef.class}, version = 20, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract CocktailDao cocktailDao();
     public abstract IngredientDao ingredientDao();
     public abstract CocktailIngredientDao cocktailIngredientDao();
 
     private static volatile AppDatabase INSTANCE;
+    public static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(4);
 
     public static AppDatabase getInstance(Context context) {
         if (INSTANCE == null) {

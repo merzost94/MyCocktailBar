@@ -1,18 +1,22 @@
 package com.example.mycocktailbar;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AlertDialog;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.example.mycocktailbar.database.AppDatabase;
 import com.example.mycocktailbar.databinding.ActivityIngredientsBinding;
+import com.example.mycocktailbar.database.AppDatabase;
 import com.example.mycocktailbar.models.Ingredient;
 import com.example.mycocktailbar.ui.IngredientAdapter;
-import java.util.ArrayList;
+import com.example.mycocktailbar.viewmodels.IngredientViewModel;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
+import android.view.LayoutInflater;
 
 public class IngredientsActivity extends AppCompatActivity {
-
     private ActivityIngredientsBinding binding;
+    private IngredientViewModel viewModel;
     private IngredientAdapter adapter;
     private AppDatabase db;
 
@@ -22,45 +26,63 @@ public class IngredientsActivity extends AppCompatActivity {
         binding = ActivityIngredientsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        db = AppDatabase.getDatabase(this);
+        db = AppDatabase.getInstance(this);
+        setupRecyclerView();
+        setupViewModel();
+        setupListeners();
+    }
 
-        setSupportActionBar(binding.toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Мой Бар");
-        }
-
-        adapter = new IngredientAdapter(new ArrayList<>(), ingredient -> {
+    private void setupRecyclerView() {
+        adapter = new IngredientAdapter(ingredient -> {
+            boolean newStatus = !ingredient.isHasItem();
+            AppDatabase.databaseWriteExecutor.execute(() -> {
+                db.cocktailDao().updateIngredientAvailability(ingredient.getId(), newStatus);
+            });
         });
 
-        binding.recyclerViewIngredients.setLayoutManager(new LinearLayoutManager(this));
-        binding.recyclerViewIngredients.setAdapter(adapter);
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.recyclerView.setAdapter(adapter);
+    }
 
-        db.cocktailDao().getIngredientsByStatus(true).observe(this, ingredients -> {
-            if (ingredients != null) {
-                adapter.setIngredients(ingredients);
+    private void setupViewModel() {
+        viewModel = new ViewModelProvider(this).get(IngredientViewModel.class);
+
+        viewModel.getAllIngredients().observe(this, ingredients -> {
+            adapter.setIngredients(ingredients);
+        });
+    }
+
+    private void setupListeners() {
+        binding.fabAdd.setOnClickListener(v -> showAddIngredientDialog());
+
+        binding.toggleBar.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                viewModel.loadIngredientsByStatus(true);
+            } else {
+                viewModel.loadAllIngredients();
             }
         });
-
-        binding.fabAddIngredient.setOnClickListener(v -> showAddIngredientDialog());
     }
 
     private void showAddIngredientDialog() {
-        String[] allNames = getResources().getStringArray(R.array.base_ingredients);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Добавить в бар");
-        builder.setItems(allNames, (dialog, which) -> addIngredientToDb(allNames[which]));
-        builder.show();
-    }
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_add_ingredient, null);
+        TextInputEditText editText = dialogView.findViewById(R.id.ingredient_name_input);
 
-    private void addIngredientToDb(String name) {
-        Ingredient newIngredient = new Ingredient(name, "Base", true, R.drawable.ic_launcher_foreground);
-        AppDatabase.databaseWriteExecutor.execute(() -> db.cocktailDao().insertIngredient(newIngredient));
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
+        builder.setTitle("Добавить ингредиент")
+                .setView(dialogView)
+                .setPositiveButton("Добавить", (dialog, which) -> {
+                    String name = editText.getText().toString().trim();
+                    if (!name.isEmpty()) {
+                        Ingredient newIngredient = new Ingredient(name, false);
+                        AppDatabase.databaseWriteExecutor.execute(() -> {
+                            db.cocktailDao().insertIngredient(newIngredient);
+                            runOnUiThread(() -> Toast.makeText(this, "Ингредиент добавлен", Toast.LENGTH_SHORT).show());
+                        });
+                    }
+                })
+                .setNegativeButton("Отмена", null)
+                .show();
     }
 }

@@ -19,8 +19,8 @@ public class CocktailViewModel extends AndroidViewModel {
         super(application);
         database = AppDatabase.getInstance(application);
         allCocktails = database.cocktailDao().getAllCocktails();
-        availableCocktails = database.cocktailDao().getAvailableCocktails();
-        almostAvailableCocktails = database.cocktailDao().getAlmostAvailableCocktails();
+        availableCocktails = database.cocktailIngredientDao().getAvailableCocktails();
+        almostAvailableCocktails = database.cocktailIngredientDao().getAlmostAvailableCocktails();
     }
 
     public LiveData<List<Cocktail>> getAllCocktails() {

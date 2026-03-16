@@ -31,8 +31,7 @@ public class CocktailsFragment extends Fragment implements Searchable {
 
     private void setupRecyclerView() {
         adapter = new CocktailAdapter(cocktail -> {
-            // Открыть детали коктейля
-            CocktailDetailActivity.start(requireContext(), cocktail.getId());
+            startActivity(CocktailDetailActivity.createIntent(requireContext(), cocktail.getId()));
         });
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
