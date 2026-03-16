@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.mycocktailbar.databinding.ActivityCocktailDetailBinding;
 import com.example.mycocktailbar.models.Cocktail;
 import com.example.mycocktailbar.models.Ingredient;
@@ -17,6 +16,7 @@ import java.util.stream.Collectors;
 public class CocktailDetailActivity extends AppCompatActivity {
     private ActivityCocktailDetailBinding binding;
     private CocktailDetailViewModel viewModel;
+    private long cocktailId = -1;
 
     public static Intent createIntent(Context context, long cocktailId) {
         Intent intent = new Intent(context, CocktailDetailActivity.class);
@@ -30,14 +30,18 @@ public class CocktailDetailActivity extends AppCompatActivity {
         binding = ActivityCocktailDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        long cocktailId = getIntent().getLongExtra("cocktail_id", -1);
+        // Получаем ID коктейля из Intent
+        cocktailId = getIntent().getLongExtra("cocktail_id", -1);
+
         if (cocktailId == -1) {
-            Toast.makeText(this, "Ошибка загрузки коктейля", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Ошибка: коктейль не найден", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
         viewModel = new ViewModelProvider(this).get(CocktailDetailViewModel.class);
+
+        // Загружаем данные
         viewModel.loadCocktail(cocktailId);
         viewModel.loadIngredientsForCocktail(cocktailId);
 
@@ -50,15 +54,20 @@ public class CocktailDetailActivity extends AppCompatActivity {
                 binding.cocktailName.setText(cocktail.getName());
                 binding.cocktailDescription.setText(cocktail.getDescription());
                 binding.cocktailInstructions.setText(cocktail.getInstructions());
+            } else {
+                Toast.makeText(this, "Коктейль не найден в базе данных", Toast.LENGTH_SHORT).show();
+                finish();
             }
         });
 
         viewModel.getIngredients().observe(this, ingredients -> {
-            if (ingredients != null) {
+            if (ingredients != null && !ingredients.isEmpty()) {
                 String ingredientsText = ingredients.stream()
                         .map(ingredient -> "• " + ingredient.getName())
                         .collect(Collectors.joining("\n"));
                 binding.cocktailIngredients.setText(ingredientsText);
+            } else {
+                binding.cocktailIngredients.setText("Ингредиенты не указаны");
             }
         });
     }

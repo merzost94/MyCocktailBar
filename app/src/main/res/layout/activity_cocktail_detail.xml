@@ -5,7 +5,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@android:color/white">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -13,21 +14,13 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <ImageView
-                android:id="@+id/cocktailImage"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_cocktail_placeholder"
-                tools:src="@tools:sample/avatars" />
-
             <TextView
                 android:id="@+id/cocktailName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:textSize="24sp"
                 android:textStyle="bold"
+                android:textColor="@color/black"
                 tools:text="Маргарита" />
 
             <TextView
@@ -36,7 +29,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:textSize="16sp"
-                tools:text="Смешать текилу, ликер и сок лайма" />
+                android:textColor="@color/gray_600"
+                tools:text="Классический коктейль на основе текилы" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -44,7 +38,8 @@
                 android:layout_marginTop="16dp"
                 android:text="Ингредиенты:"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/black" />
 
             <TextView
                 android:id="@+id/cocktailIngredients"
@@ -52,7 +47,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:textSize="14sp"
-                tools:text="• Текила\n• Ликер\n• Сок лайма" />
+                android:textColor="@color/black"
+                android:lineSpacingExtra="4dp"
+                tools:text="• Текила\n• Трипл сек\n• Сок лайма" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -60,7 +57,8 @@
                 android:layout_marginTop="16dp"
                 android:text="Инструкция:"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/black" />
 
             <TextView
                 android:id="@+id/cocktailInstructions"
@@ -68,7 +66,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:textSize="14sp"
-                tools:text="1. Кромку бокала смочить соком лайма и окунуть в соль.\n2. Смешать в шейкере текилу, ликер и сок.\n3. Процедить в бокал со льдом." />
+                android:textColor="@color/black"
+                android:lineSpacingExtra="4dp"
+                tools:text="1. Кромку бокала смочить соком лайма и окунуть в соль.\n2. Смешать в шейкере текилу, трипл сек и сок лайма.\n3. Процедить в бокал со льдом." />
 
         </LinearLayout>
 
