@@ -1,79 +1,64 @@
 package com.example.mycocktailbar.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
-import com.example.mycocktailbar.Searchable;
-import com.example.mycocktailbar.database.AppDatabase;
-import com.example.mycocktailbar.databinding.FragmentWithTabsBinding;
-import com.example.mycocktailbar.models.Cocktail;
-
-import java.util.ArrayList;
+import com.example.mycocktailbar.databinding.FragmentCocktailsBinding;
+import com.example.mycocktailbar.viewmodels.CocktailViewModel;
 
 public class CocktailsFragment extends Fragment implements Searchable {
-    private FragmentWithTabsBinding binding;
-    private AppDatabase db;
+    private FragmentCocktailsBinding binding;
+    private CocktailViewModel viewModel;
     private CocktailAdapter adapter;
-    private String currentQuery = "";
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentWithTabsBinding.inflate(inflater, container, false);
-        db = AppDatabase.getDatabase(requireContext());
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentCocktailsBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
 
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        setupRecyclerView();
+        setupViewModel();
+    }
+
+    private void setupRecyclerView() {
         adapter = new CocktailAdapter(cocktail -> {
-            Intent intent = new Intent(getContext(), CocktailDetailActivity.class);
-            intent.putExtra("COCKTAIL_ID", cocktail.getId());
-            startActivity(intent);
+            // Открыть детали коктейля
+            CocktailDetailActivity.start(requireContext(), cocktail.getId());
         });
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerView.setAdapter(adapter);
-
-        binding.tabLayout.setVisibility(View.GONE);
-
-        if (binding.searchView != null) {
-            binding.searchView.setVisibility(View.GONE);
-        }
-
-        loadData("");
-        return binding.getRoot();
     }
 
-    private void loadData(String query) {
-        this.currentQuery = query;
-        if (query.isEmpty()) {
-            db.cocktailDao().getAvailableCocktails().observe(getViewLifecycleOwner(), list -> {
-                if (list != null) adapter.setAvailableCocktails(list);
-            });
+    private void setupViewModel() {
+        viewModel = new ViewModelProvider(requireActivity()).get(CocktailViewModel.class);
 
-            db.cocktailDao().getAlmostAvailableCocktails().observe(getViewLifecycleOwner(), list -> {
-                if (list != null) adapter.setAlmostAvailableCocktails(list);
-            });
-        } else {
-            db.cocktailDao().searchCocktails(query).observe(getViewLifecycleOwner(), list -> {
-                if (list != null) {
-                    adapter.setAvailableCocktails(list);
-                    adapter.setAlmostAvailableCocktails(new ArrayList<>());
-                }
-            });
-        }
-    }
+        viewModel.getAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
+            adapter.setAvailableCocktails(cocktails);
+        });
 
-    @Override
-    public void filter(String text) {
-        loadData(text);
+        viewModel.getAlmostAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
+            adapter.setAlmostAvailableCocktails(cocktails);
+        });
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    @Override
+    public void search(String query) {
+        viewModel.searchCocktails(query);
     }
 }

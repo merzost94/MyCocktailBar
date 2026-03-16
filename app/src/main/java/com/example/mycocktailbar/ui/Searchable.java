@@ -1,4 +1,5 @@
 package com.example.mycocktailbar.ui;
 
-public class Searchable {
+public interface Searchable {
+    void search(String query);
 }

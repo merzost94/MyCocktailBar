@@ -10,6 +10,8 @@ import com.example.mycocktailbar.databinding.ItemCocktailBinding;
 import com.example.mycocktailbar.models.Cocktail;
 import java.util.ArrayList;
 import java.util.List;
+import com.bumptech.glide.Glide;
+
 
 public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.CocktailViewHolder> {
 

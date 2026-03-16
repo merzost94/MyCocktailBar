@@ -1,39 +1,71 @@
-package com.example.mycocktailbar.ui;
+package com.example.mycocktailbar.models;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import com.example.mycocktailbar.databinding.FragmentCocktailsBinding;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
-public class CocktailsFragment extends Fragment {
+@Entity(tableName = "cocktails")
+public class Cocktail {
+    @PrimaryKey(autoGenerate = true)
+    private long id;
+    private String name;
+    private String description;
+    private String category;
+    private String instructions;
+    private String imageUrl;
 
-    private FragmentCocktailsBinding binding;
-    private CocktailAdapter adapter;
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentCocktailsBinding.inflate(inflater, container, false);
-
-        setupRecyclerView();
-
-        return binding.getRoot();
+    public Cocktail(String name, String description, String category, String instructions, String imageUrl) {
+        this.name = name;
+        this.description = description;
+        this.category = category;
+        this.instructions = instructions;
+        this.imageUrl = imageUrl;
     }
 
-    private void setupRecyclerView() {
-        adapter = new CocktailAdapter(cocktail -> {
-            Intent intent = new Intent(getContext(), CocktailDetailActivity.class);
-            intent.putExtra("COCKTAIL_ID", cocktail.getId());
-            startActivity(intent);
-        });
+    public long getId() {
+        return id;
+    }
 
-        binding.recyclerViewCocktails.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.recyclerViewCocktails.setAdapter(adapter);
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getInstructions() {
+        return instructions;
+    }
+
+    public void setInstructions(String instructions) {
+        this.instructions = instructions;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
