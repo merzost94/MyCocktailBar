@@ -3,17 +3,19 @@ package com.example.mycocktailbar.ui;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;              // ДОБАВЛЕНО
-import android.view.MenuItem;         // ДОБАВЛЕНО
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.example.mycocktailbar.MainActivity;  // ДОБАВЛЕНО для logout
+import com.example.mycocktailbar.MainActivity;
 import com.example.mycocktailbar.R;
 import com.example.mycocktailbar.databinding.ActivityAdminBinding;
 import com.example.mycocktailbar.databinding.DialogAddIngredientBinding;
 import com.example.mycocktailbar.models.Cocktail;
+import com.example.mycocktailbar.models.CocktailIngredientCrossRef;
 import com.example.mycocktailbar.models.Ingredient;
 import com.example.mycocktailbar.database.AppDatabase;
 import com.google.android.material.textfield.TextInputEditText;
@@ -26,6 +28,9 @@ public class AdminActivity extends AppCompatActivity {
     private AppDatabase database;
     private List<Cocktail> cocktails = new ArrayList<>();
     private List<Ingredient> ingredients = new ArrayList<>();
+    private CocktailAdapter cocktailAdapter;
+    private IngredientAdapter ingredientAdapter;
+    private Cocktail currentEditingCocktail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +42,7 @@ public class AdminActivity extends AppCompatActivity {
 
         setupToolbar();
         setupTabs();
+        setupRecyclerViews();
         loadData();
     }
 
@@ -46,6 +52,21 @@ public class AdminActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setTitle("Админ панель");
         }
+    }
+
+    private void setupRecyclerViews() {
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // Адаптер для коктейлей с возможностью редактирования и удаления
+        cocktailAdapter = new CocktailAdapter(cocktail -> {
+            // Клик - редактирование
+            showEditCocktailDialog(cocktail);
+        });
+
+        // Адаптер для ингредиентов
+        ingredientAdapter = new IngredientAdapter((ingredient, isChecked) -> {
+            // В админке чекбоксы не нужны
+        });
     }
 
     private void setupTabs() {
@@ -94,17 +115,31 @@ public class AdminActivity extends AppCompatActivity {
     }
 
     private void showCocktails() {
-        // TODO: показать список коктейлей
-        binding.recyclerView.setVisibility(android.view.View.GONE);
-        binding.emptyView.setVisibility(android.view.View.VISIBLE);
-        binding.emptyView.setText("Нет коктейлей");
+        binding.recyclerView.setAdapter(cocktailAdapter);
+        cocktailAdapter.submitList(cocktails);
+
+        if (cocktails.isEmpty()) {
+            binding.recyclerView.setVisibility(View.GONE);
+            binding.emptyView.setVisibility(View.VISIBLE);
+            binding.emptyView.setText("Нет коктейлей");
+        } else {
+            binding.recyclerView.setVisibility(View.VISIBLE);
+            binding.emptyView.setVisibility(View.GONE);
+        }
     }
 
     private void showIngredients() {
-        // TODO: показать список ингредиентов
-        binding.recyclerView.setVisibility(android.view.View.GONE);
-        binding.emptyView.setVisibility(android.view.View.VISIBLE);
-        binding.emptyView.setText("Нет ингредиентов");
+        binding.recyclerView.setAdapter(ingredientAdapter);
+        ingredientAdapter.submitList(ingredients);
+
+        if (ingredients.isEmpty()) {
+            binding.recyclerView.setVisibility(View.GONE);
+            binding.emptyView.setVisibility(View.VISIBLE);
+            binding.emptyView.setText("Нет ингредиентов");
+        } else {
+            binding.recyclerView.setVisibility(View.VISIBLE);
+            binding.emptyView.setVisibility(View.GONE);
+        }
     }
 
     private void showAddCocktailDialog() {
@@ -120,7 +155,7 @@ public class AdminActivity extends AppCompatActivity {
         TextInputEditText instructionsInput = view.findViewById(R.id.cocktail_instructions_input);
         TextInputEditText imageInput = view.findViewById(R.id.cocktail_image_input);
 
-        builder.setPositiveButton("Добавить", (dialog, which) -> {
+        builder.setPositiveButton("Далее", (dialog, which) -> {
             String name = nameInput.getText().toString().trim();
             String category = categoryInput.getText().toString().trim();
             String description = descriptionInput.getText().toString().trim();
@@ -132,18 +167,166 @@ public class AdminActivity extends AppCompatActivity {
                 return;
             }
 
+            // Создаем коктейль
             Cocktail cocktail = new Cocktail(name, description, category, instructions, imageUrl);
 
-            Executors.newSingleThreadExecutor().execute(() -> {
-                database.cocktailDao().insertCocktail(cocktail);
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Коктейль добавлен", Toast.LENGTH_SHORT).show();
-                });
-            });
+            // Переходим к выбору ингредиентов
+            showIngredientSelectionDialog(cocktail, false);
         });
 
         builder.setNegativeButton("Отмена", null);
         builder.show();
+    }
+
+    private void showEditCocktailDialog(Cocktail cocktail) {
+        currentEditingCocktail = cocktail;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Редактировать коктейль");
+
+        View view = getLayoutInflater().inflate(R.layout.dialog_add_cocktail, null);
+        builder.setView(view);
+
+        TextInputEditText nameInput = view.findViewById(R.id.cocktail_name_input);
+        TextInputEditText categoryInput = view.findViewById(R.id.cocktail_category_input);
+        TextInputEditText descriptionInput = view.findViewById(R.id.cocktail_description_input);
+        TextInputEditText instructionsInput = view.findViewById(R.id.cocktail_instructions_input);
+        TextInputEditText imageInput = view.findViewById(R.id.cocktail_image_input);
+
+        // Заполняем существующие данные
+        nameInput.setText(cocktail.getName());
+        categoryInput.setText(cocktail.getCategory());
+        descriptionInput.setText(cocktail.getDescription());
+        instructionsInput.setText(cocktail.getInstructions());
+        imageInput.setText(cocktail.getImageUrl());
+
+        builder.setPositiveButton("Сохранить", (dialog, which) -> {
+            String name = nameInput.getText().toString().trim();
+            String category = categoryInput.getText().toString().trim();
+            String description = descriptionInput.getText().toString().trim();
+            String instructions = instructionsInput.getText().toString().trim();
+            String imageUrl = imageInput.getText().toString().trim();
+
+            if (name.isEmpty()) {
+                Toast.makeText(this, "Введите название", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Обновляем коктейль
+            cocktail.setName(name);
+            cocktail.setCategory(category);
+            cocktail.setDescription(description);
+            cocktail.setInstructions(instructions);
+            cocktail.setImageUrl(imageUrl);
+
+            // Переходим к выбору ингредиентов
+            showIngredientSelectionDialog(cocktail, true);
+        });
+
+        builder.setNegativeButton("Отмена", null);
+        builder.setNeutralButton("Удалить", (dialog, which) -> {
+            showDeleteConfirmationDialog(cocktail);
+        });
+
+        builder.show();
+    }
+
+    private void showIngredientSelectionDialog(Cocktail cocktail, boolean isEdit) {
+        // Создаем кастомный диалог
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(isEdit ? "Редактировать ингредиенты" : "Выберите ингредиенты");
+
+        View view = getLayoutInflater().inflate(R.layout.dialog_select_ingredients, null);
+        builder.setView(view);
+
+        androidx.recyclerview.widget.RecyclerView recyclerView = view.findViewById(R.id.ingredientsRecyclerView);
+        Button btnCancel = view.findViewById(R.id.btnCancel);
+        Button btnSave = view.findViewById(R.id.btnSave);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        // Загружаем ингредиенты и выбранные
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<Ingredient> allIngredients = database.ingredientDao().getAllIngredientsSync();
+            List<Long> selectedIds = new ArrayList<>();
+
+            if (isEdit) {
+                // Загружаем уже выбранные ингредиенты для этого коктейля
+                List<Ingredient> cocktailIngredients = database.cocktailIngredientDao()
+                        .getIngredientsForCocktail(cocktail.getId());
+                for (Ingredient ing : cocktailIngredients) {
+                    selectedIds.add(ing.getId());
+                }
+            }
+
+            List<Long> finalSelectedIds = selectedIds;
+            runOnUiThread(() -> {
+                IngredientSelectionAdapter adapter = new IngredientSelectionAdapter((ing, isSelected) -> {
+                    // Можно добавить логику при выборе
+                });
+
+                adapter.submitList(allIngredients);
+                adapter.setSelectedIngredients(finalSelectedIds);
+                recyclerView.setAdapter(adapter);
+
+                btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+                btnSave.setOnClickListener(v -> {
+                    List<Long> selectedIngredientIds = adapter.getSelectedIngredients();
+                    saveCocktailWithIngredients(cocktail, selectedIngredientIds, isEdit);
+                    dialog.dismiss();
+                });
+            });
+        });
+    }
+
+    private void saveCocktailWithIngredients(Cocktail cocktail, List<Long> selectedIngredientIds, boolean isEdit) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            if (isEdit) {
+                // Обновляем существующий коктейль
+                database.cocktailDao().updateCocktail(cocktail);
+
+                // Удаляем старые связи
+                // TODO: добавить метод удаления по cocktailId
+                // Пока пропустим, потом добавим
+            } else {
+                // Добавляем новый коктейль
+                long cocktailId = database.cocktailDao().insertCocktail(cocktail);
+                cocktail.setId(cocktailId);
+            }
+
+            // Добавляем новые связи
+            for (long ingredientId : selectedIngredientIds) {
+                CocktailIngredientCrossRef crossRef = new CocktailIngredientCrossRef(cocktail.getId(), ingredientId);
+                database.cocktailIngredientDao().insert(crossRef);
+            }
+
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Коктейль сохранен с " + selectedIngredientIds.size() + " ингредиентами",
+                        Toast.LENGTH_SHORT).show();
+            });
+        });
+    }
+
+    private void showDeleteConfirmationDialog(Cocktail cocktail) {
+        new AlertDialog.Builder(this)
+                .setTitle("Удаление")
+                .setMessage("Удалить коктейль \"" + cocktail.getName() + "\"?")
+                .setPositiveButton("Удалить", (dialog, which) -> {
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        // TODO: удалить связи, потом коктейль
+                        // database.cocktailIngredientDao().deleteByCocktailId(cocktail.getId());
+                        // database.cocktailDao().deleteCocktail(cocktail);
+                        runOnUiThread(() -> {
+                            Toast.makeText(this, "Коктейль удален", Toast.LENGTH_SHORT).show();
+                        });
+                    });
+                })
+                .setNegativeButton("Отмена", null)
+                .show();
     }
 
     private void showAddIngredientDialog() {
@@ -175,7 +358,6 @@ public class AdminActivity extends AppCompatActivity {
         builder.show();
     }
 
-    // Добавь в меню админки
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.admin_menu, menu);

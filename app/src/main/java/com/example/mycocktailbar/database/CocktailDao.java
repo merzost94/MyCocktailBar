@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;  // ДОБАВЛЕНО
 import com.example.mycocktailbar.models.Cocktail;
 import com.example.mycocktailbar.models.Ingredient;
 import java.util.List;
@@ -24,6 +25,9 @@ public interface CocktailDao {
 
     @Insert
     long insertCocktail(Cocktail cocktail);
+
+    @Update  // ТЕПЕРЬ РАБОТАЕТ
+    void updateCocktail(Cocktail cocktail);
 
     @Query("SELECT * FROM cocktails WHERE category = :category")
     LiveData<List<Cocktail>> getCocktailsByCategory(String category);
