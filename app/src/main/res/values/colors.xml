@@ -1,13 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="cocktail_purple">#9C27B0</color>
-    <color name="cocktail_dark_purple">#7B1FA2</color>
+    <!-- Основные цвета коктейльной темы -->
+    <color name="cocktail_purple">#BB86FC</color>
+    <color name="cocktail_dark_purple">#6200EE</color>
     <color name="cocktail_light_purple">#E1BEE7</color>
+
     <color name="cocktail_gold">#FFC107</color>
     <color name="cocktail_dark_gold">#FFA000</color>
-    <color name="cocktail_background">#F5F5F5</color>
+    <color name="cocktail_light_gold">#FFECB3</color>
+
+    <!-- Цвета для темной темы -->
+    <color name="background_dark">#121212</color>
+    <color name="surface_dark">#1E1E1E</color>
+    <color name="card_dark">#2C2C2C</color>
+
+    <!-- Оттенки серого для темной темы -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="gray_100">#F5F5F5</color>
+    <color name="gray_200">#EEEEEE</color>
+    <color name="gray_300">#E0E0E0</color>
+    <color name="gray_400">#BDBDBD</color>
+    <color name="gray_500">#9E9E9E</color>
     <color name="gray_600">#757575</color>
+    <color name="gray_700">#616161</color>
+    <color name="gray_800">#424242</color>
+    <color name="gray_900">#212121</color>
 
+    <color name="transparent">#00000000</color>
 </resources>

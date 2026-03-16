@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.mycocktailbar.R;
 import com.example.mycocktailbar.databinding.FragmentCocktailsBinding;
 import com.example.mycocktailbar.viewmodels.CocktailViewModel;
+import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
 
 public class CocktailsFragment extends Fragment implements Searchable {
@@ -30,168 +31,108 @@ public class CocktailsFragment extends Fragment implements Searchable {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        try {
-            setupRecyclerView();
-            setupViewModel();
-            setupListeners();
+        setupRecyclerView();
+        setupViewModel();
+        setupListeners();
 
-            // По умолчанию выбираем "Доступные"
-            if (binding.toggleView != null) {
-                binding.toggleView.check(R.id.btn_available);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(getContext(), "Ошибка загрузки: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+        // По умолчанию выбираем "Доступные"
+        binding.tabLayout.getTabAt(0).select();
     }
 
     private void setupRecyclerView() {
-        try {
-            adapter = new CocktailAdapter(cocktail -> {
-                if (cocktail != null && cocktail.getId() > 0) {
-                    startActivity(CocktailDetailActivity.createIntent(requireContext(), cocktail.getId()));
-                } else {
-                    Toast.makeText(getContext(), "Ошибка загрузки коктейля", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            if (binding.recyclerView != null) {
-                binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                binding.recyclerView.setAdapter(adapter);
+        adapter = new CocktailAdapter(cocktail -> {
+            if (cocktail != null && cocktail.getId() > 0) {
+                startActivity(CocktailDetailActivity.createIntent(requireContext(), cocktail.getId()));
+            } else {
+                Toast.makeText(getContext(), "Ошибка загрузки коктейля", Toast.LENGTH_SHORT).show();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
+
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.recyclerView.setAdapter(adapter);
     }
 
     private void setupViewModel() {
-        try {
-            viewModel = new ViewModelProvider(requireActivity()).get(CocktailViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(CocktailViewModel.class);
 
-            viewModel.getAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-                try {
-                    if (!showAllMode && adapter != null) {
-                        adapter.setAvailableCocktails(cocktails != null ? cocktails : new ArrayList<>());
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-
-            viewModel.getAlmostAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-                try {
-                    if (!showAllMode && adapter != null) {
-                        adapter.setAlmostAvailableCocktails(cocktails != null ? cocktails : new ArrayList<>());
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-
-            viewModel.getAllCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-                try {
-                    if (showAllMode && adapter != null) {
-                        adapter.setAllCocktails(cocktails != null ? cocktails : new ArrayList<>());
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-
-            viewModel.getSearchResults().observe(getViewLifecycleOwner(), cocktails -> {
-                try {
-                    if (cocktails != null && !cocktails.isEmpty() && adapter != null) {
-                        adapter.setAllCocktails(cocktails);
-                    } else if (cocktails != null && cocktails.isEmpty()) {
-                        Toast.makeText(getContext(), "Ничего не найдено", Toast.LENGTH_SHORT).show();
-                        if (showAllMode) {
-                            viewModel.loadAllCocktails();
-                        } else {
-                            viewModel.loadAvailableCocktails();
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-
-            viewModel.loadAvailableCocktails();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void setupListeners() {
-        try {
-            if (binding.btnAll != null) {
-                binding.btnAll.setOnClickListener(v -> {
-                    try {
-                        showAllMode = true;
-                        if (binding.btnAvailable != null) {
-                            binding.btnAvailable.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.gray_600)));
-                        }
-                        if (binding.btnAll != null) {
-                            binding.btnAll.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.cocktail_gold)));
-                        }
-                        viewModel.loadAllCocktails();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
+        viewModel.getAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
+            if (!showAllMode && cocktails != null) {
+                adapter.setAvailableCocktails(cocktails);
             }
+        });
 
-            if (binding.btnAvailable != null) {
-                binding.btnAvailable.setOnClickListener(v -> {
-                    try {
-                        showAllMode = false;
-                        if (binding.btnAvailable != null) {
-                            binding.btnAvailable.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.cocktail_purple)));
-                        }
-                        if (binding.btnAll != null) {
-                            binding.btnAll.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getResources().getColor(R.color.gray_600)));
-                        }
-                        viewModel.loadAvailableCocktails();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
+        viewModel.getAlmostAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
+            if (!showAllMode && cocktails != null) {
+                adapter.setAlmostAvailableCocktails(cocktails);
             }
+        });
 
-            if (binding.searchButton != null) {
-                binding.searchButton.setOnClickListener(v -> {
-                    String query = binding.searchInput != null ? binding.searchInput.getText().toString().trim() : "";
-                    performSearch(query);
-                });
+        viewModel.getAllCocktails().observe(getViewLifecycleOwner(), cocktails -> {
+            if (showAllMode && cocktails != null) {
+                adapter.setAllCocktails(cocktails);
             }
+        });
 
-            if (binding.searchInput != null) {
-                binding.searchInput.setOnEditorActionListener((v, actionId, event) -> {
-                    if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                        String query = binding.searchInput.getText().toString().trim();
-                        performSearch(query);
-                        return true;
-                    }
-                    return false;
-                });
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void performSearch(String query) {
-        try {
-            if (query.isEmpty()) {
+        viewModel.getSearchResults().observe(getViewLifecycleOwner(), cocktails -> {
+            if (cocktails != null && !cocktails.isEmpty()) {
+                adapter.setAllCocktails(cocktails);
+            } else if (cocktails != null && cocktails.isEmpty()) {
+                Toast.makeText(getContext(), "Ничего не найдено", Toast.LENGTH_SHORT).show();
                 if (showAllMode) {
                     viewModel.loadAllCocktails();
                 } else {
                     viewModel.loadAvailableCocktails();
                 }
-            } else {
-                viewModel.searchCocktails(query);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        });
+
+        viewModel.loadAvailableCocktails();
+    }
+
+    private void setupListeners() {
+        binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 0) {
+                    showAllMode = false;
+                    viewModel.loadAvailableCocktails();
+                } else {
+                    showAllMode = true;
+                    viewModel.loadAllCocktails();
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
+        });
+
+        binding.searchButton.setOnClickListener(v -> {
+            String query = binding.searchInput.getText().toString().trim();
+            performSearch(query);
+        });
+
+        binding.searchInput.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                String query = binding.searchInput.getText().toString().trim();
+                performSearch(query);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void performSearch(String query) {
+        if (query.isEmpty()) {
+            if (showAllMode) {
+                viewModel.loadAllCocktails();
+            } else {
+                viewModel.loadAvailableCocktails();
+            }
+        } else {
+            viewModel.searchCocktails(query);
         }
     }
 
