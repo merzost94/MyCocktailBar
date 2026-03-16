@@ -5,26 +5,26 @@
     <color name="black">#FF000000</color>
 
     <!-- Основные цвета приложения -->
-    <color name="primary">#BB86FC</color>  <!-- Светло-фиолетовый для темной темы -->
+    <color name="primary">#BB86FC</color>
     <color name="primary_dark">#3700B3</color>
     <color name="primary_light">#6200EE</color>
     <color name="secondary">#03DAC6</color>
     <color name="secondary_dark">#018786</color>
 
     <!-- Фоновые цвета -->
-    <color name="background_dark">#121212</color>  <!-- Основной фон -->
-    <color name="surface_dark">#1E1E1E</color>     <!-- Поверхности (карточки) -->
-    <color name="card_dark">#2D2D2D</color>        <!-- Карточки -->
+    <color name="background_dark">#121212</color>
+    <color name="surface_dark">#1E1E1E</color>
+    <color name="card_dark">#2D2D2D</color>
 
-    <!-- Цвета для светлой темы (оставляем для совместимости) -->
+    <!-- Цвета для светлой темы -->
     <color name="background_light">#F5F5F5</color>
     <color name="surface_light">#FFFFFF</color>
     <color name="card_light">#FFFFFF</color>
 
     <!-- Цвета текста для темной темы -->
-    <color name="text_primary_dark">#FFFFFF</color>     <!-- Основной текст -->
-    <color name="text_secondary_dark">#B0B0B0</color>   <!-- Вторичный текст -->
-    <color name="text_hint_dark">#666666</color>        <!-- Подсказки -->
+    <color name="text_primary_dark">#FFFFFF</color>
+    <color name="text_secondary_dark">#B0B0B0</color>
+    <color name="text_hint_dark">#666666</color>
 
     <!-- Цвета текста для светлой темы -->
     <color name="text_primary">#212121</color>
@@ -38,14 +38,15 @@
     <color name="search_icon">#BB86FC</color>
 
     <!-- Цвета статусов коктейлей -->
-    <color name="status_available">#4CAF50</color>   <!-- Зеленый - можно приготовить -->
-    <color name="status_almost">#FF9800</color>      <!-- Оранжевый - почти готов -->
-    <color name="status_unavailable">#F44336</color> <!-- Красный - не хватает -->
+    <color name="status_available">#4CAF50</color>
+    <color name="status_almost">#FF9800</color>
+    <color name="status_unavailable">#F44336</color>
 
     <!-- Акцентные цвета -->
     <color name="accent_purple">#BB86FC</color>
     <color name="accent_purple_light">#E1BEE7</color>
     <color name="accent_gold">#FFC107</color>
+    <color name="accent_dark_gold">#FFA000</color>  <!-- Добавлено! -->
 
     <!-- Оттенки серого для темной темы -->
     <color name="gray_800">#2D2D2D</color>
@@ -60,6 +61,8 @@
     <!-- Для обратной совместимости -->
     <color name="cocktail_purple">#BB86FC</color>
     <color name="cocktail_dark_purple">#6200EE</color>
+    <color name="cocktail_light_purple">#E1BEE7</color>
     <color name="cocktail_gold">#FFC107</color>
+    <color name="cocktail_dark_gold">#FFA000</color>  <!-- Добавлено! -->
     <color name="cocktail_green">#4CAF50</color>
 </resources>
