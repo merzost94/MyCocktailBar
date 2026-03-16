@@ -30,15 +30,13 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.Vi
     public void onBindViewHolder(ViewHolder holder, int position) {
         Ingredient ingredient = ingredients.get(position);
         holder.binding.ingredientName.setText(ingredient.getName());
+        holder.binding.ingredientCategory.setText(ingredient.getCategory());
 
-        // Убираем слушатель перед установкой значения
         holder.binding.ingredientCheckbox.setOnCheckedChangeListener(null);
         holder.binding.ingredientCheckbox.setChecked(ingredient.isHasItem());
 
-        // Устанавливаем новый слушатель
         holder.binding.ingredientCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (buttonView.isPressed()) { // Только если это действие пользователя
-                ingredient.setHasItem(isChecked);
+            if (buttonView.isPressed()) {
                 listener.onIngredientClick(ingredient, isChecked);
             }
         });
@@ -55,7 +53,7 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.Vi
     }
 
     public void setIngredients(List<Ingredient> ingredients) {
-        this.ingredients = ingredients;
+        this.ingredients = ingredients != null ? ingredients : new ArrayList<>();
         notifyDataSetChanged();
     }
 
