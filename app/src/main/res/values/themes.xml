@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.MyCocktailBar" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.MyCocktailBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand colors -->
         <item name="colorPrimary">@color/cocktail_purple</item>
         <item name="colorPrimaryVariant">@color/cocktail_dark_purple</item>
@@ -24,39 +24,7 @@
         <item name="android:textColor">#E0E0E0</item>
         <item name="android:textColorPrimary">#E0E0E0</item>
         <item name="android:textColorSecondary">#9E9E9E</item>
-
-        <!-- Card background -->
-        <item name="cardViewStyle">@style/Widget.MyCocktailBar.CardView</item>
     </style>
 
     <style name="Theme.MyCocktailBar" parent="Base.Theme.MyCocktailBar" />
-
-    <!-- CardView style для темной темы -->
-    <style name="Widget.MyCocktailBar.CardView" parent="Widget.Material3.CardView">
-        <item name="cardBackgroundColor">#2C2C2C</item>
-        <item name="cardCornerRadius">12dp</item>
-        <item name="cardElevation">4dp</item>
-    </style>
-
-    <!-- EditText style для темной темы -->
-    <style name="Widget.MyCocktailBar.EditText" parent="Widget.Material3.TextInputLayout.OutlinedBox">
-        <item name="boxStrokeColor">@color/cocktail_purple</item>
-        <item name="boxStrokeWidth">2dp</item>
-        <item name="hintTextColor">@color/cocktail_purple</item>
-        <item name="android:textColorHint">#9E9E9E</item>
-    </style>
-
-    <!-- Button style для темной темы -->
-    <style name="Widget.MyCocktailBar.Button" parent="Widget.Material3.Button">
-        <item name="android:textColor">@color/white</item>
-        <item name="cornerRadius">24dp</item>
-    </style>
-
-    <!-- TabLayout style для темной темы -->
-    <style name="Widget.MyCocktailBar.TabLayout" parent="Widget.Material3.TabLayout">
-        <item name="tabTextColor">#9E9E9E</item>
-        <item name="tabSelectedTextColor">@color/cocktail_purple</item>
-        <item name="tabIndicatorColor">@color/cocktail_purple</item>
-        <item name="tabBackground">@color/transparent</item>
-    </style>
 </resources>
