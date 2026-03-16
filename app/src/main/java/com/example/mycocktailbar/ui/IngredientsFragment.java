@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.mycocktailbar.databinding.FragmentIngredientsBinding;
 import com.example.mycocktailbar.viewmodel.IngredientViewModel;
-import com.example.mycocktailbar.models.Ingredient; // ИЗМЕНЕНО: model -> models
+import com.example.mycocktailbar.models.Ingredient;
 import androidx.appcompat.widget.SearchView;
 import java.util.List;
 
