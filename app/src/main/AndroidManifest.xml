@@ -22,11 +22,18 @@
             </intent-filter>
         </activity>
 
+        <!-- Добавьте эту строку -->
         <activity
             android:name=".ui.CocktailDetailActivity"
-            android:exported="false"
-            android:label="Детали коктейля"
-            android:parentActivityName=".MainActivity" />
+            android:exported="false" />
+
+        <activity
+            android:name=".IngredientsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.AdminActivity"
+            android:exported="false" />
 
     </application>
 
