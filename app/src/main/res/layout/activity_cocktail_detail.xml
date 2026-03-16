@@ -46,7 +46,7 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- Изображение коктейля -->
+                <!-- ИСПРАВЛЕНО: ImageView с правильными параметрами -->
                 <ImageView
                     android:id="@+id/cocktailImage"
                     android:layout_width="match_parent"
@@ -56,7 +56,6 @@
                     android:background="@color/gray_700"
                     android:visibility="@{cocktail.imageUrl != null &amp;&amp; !cocktail.imageUrl.isEmpty() ? View.VISIBLE : View.GONE}"/>
 
-                <!-- Категория -->
                 <TextView
                     android:id="@+id/categoryText"
                     android:layout_width="wrap_content"
@@ -64,13 +63,24 @@
                     android:layout_marginTop="16dp"
                     android:text="@{cocktail.category}"
                     android:textSize="14sp"
-                    android:textColor="@color/white"
+                    android:textColor="@android:color/white"
                     android:background="@drawable/category_badge"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="4dp"
                     android:visibility="@{cocktail.category != null &amp;&amp; !cocktail.category.isEmpty() ? View.VISIBLE : View.GONE}" />
 
-                <!-- Описание -->
+                <TextView
+                    android:id="@+id/statusText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:padding="12dp"
+                    android:layout_marginVertical="8dp"
+                    android:background="@drawable/status_badge"
+                    android:visibility="gone"/>
+
                 <TextView
                     android:id="@+id/descriptionText"
                     android:layout_width="match_parent"
@@ -82,14 +92,12 @@
                     android:lineSpacingExtra="4dp"
                     android:visibility="@{cocktail.description != null &amp;&amp; !cocktail.description.isEmpty() ? View.VISIBLE : View.GONE}" />
 
-                <!-- Разделитель -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginVertical="16dp"
                     android:background="@color/gray_600" />
 
-                <!-- Заголовок ингредиентов -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -99,7 +107,6 @@
                     android:textColor="@color/text_primary_dark"
                     android:layout_marginBottom="8dp" />
 
-                <!-- Список ингредиентов -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/ingredientsRecyclerView"
                     android:layout_width="match_parent"
@@ -107,7 +114,6 @@
                     android:nestedScrollingEnabled="false"
                     android:visibility="@{ingredients != null &amp;&amp; !ingredients.isEmpty() ? View.VISIBLE : View.GONE}" />
 
-                <!-- Пустой список ингредиентов -->
                 <TextView
                     android:id="@+id/emptyIngredientsText"
                     android:layout_width="match_parent"
@@ -119,14 +125,12 @@
                     android:padding="16dp"
                     android:visibility="@{ingredients == null || ingredients.isEmpty() ? View.VISIBLE : View.GONE}" />
 
-                <!-- Разделитель -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginVertical="16dp"
                     android:background="@color/gray_600" />
 
-                <!-- Заголовок инструкции -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -136,7 +140,6 @@
                     android:textColor="@color/text_primary_dark"
                     android:layout_marginBottom="8dp" />
 
-                <!-- Инструкция -->
                 <TextView
                     android:id="@+id/instructionsText"
                     android:layout_width="match_parent"
