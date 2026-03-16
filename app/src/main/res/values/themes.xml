@@ -1,21 +1,88 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.MyCocktailBar" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+    <style name="Base.Theme.MyCocktailBar" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary brand colors - коктейльная тема -->
+        <item name="colorPrimary">@color/cocktail_purple</item>
+        <item name="colorPrimaryVariant">@color/cocktail_dark_purple</item>
         <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
+
+        <!-- Secondary brand colors -->
+        <item name="colorSecondary">@color/cocktail_gold</item>
+        <item name="colorSecondaryVariant">@color/cocktail_dark_gold</item>
         <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <!-- Default text colors -->
+
+        <!-- Surface and background -->
+        <item name="android:colorBackground">@color/cocktail_background</item>
+        <item name="colorSurface">@color/cocktail_surface</item>
+        <item name="colorOnSurface">@color/black</item>
+        <item name="colorOnBackground">@color/black</item>
+
+        <!-- Status bar color -->
+        <item name="android:statusBarColor">@color/cocktail_dark_purple</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+
+        <!-- Text colors -->
         <item name="android:textColor">@color/black</item>
         <item name="android:textColorPrimary">@color/black</item>
         <item name="android:textColorSecondary">@color/gray_600</item>
-        <!-- Background -->
-        <item name="android:windowBackground">@color/white</item>
+
+        <!-- Typography -->
+        <item name="textAppearanceHeadline1">@style/TextAppearance.MyCocktailBar.Headline1</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.MyCocktailBar.Headline2</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.MyCocktailBar.Body1</item>
+
+        <!-- Button style -->
+        <item name="materialButtonStyle">@style/Widget.MyCocktailBar.Button</item>
+    </style>
+
+    <style name="Theme.MyCocktailBar" parent="Base.Theme.MyCocktailBar" />
+
+    <!-- Typography styles -->
+    <style name="TextAppearance.MyCocktailBar.Headline1">
+        <item name="android:textSize">32sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/cocktail_purple</item>
+    </style>
+
+    <style name="TextAppearance.MyCocktailBar.Headline2">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="TextAppearance.MyCocktailBar.Body1">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/gray_600</item>
+    </style>
+
+    <!-- Button style -->
+    <style name="Widget.MyCocktailBar.Button" parent="Widget.Material3.Button">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="cornerRadius">24dp</item>
+        <item name="android:paddingVertical">12dp</item>
+        <item name="android:paddingHorizontal">24dp</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+
+    <!-- CardView style -->
+    <style name="Widget.MyCocktailBar.CardView" parent="Widget.Material3.CardView">
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">6dp</item>
+        <item name="cardBackgroundColor">@color/white</item>
+        <item name="android:translationZ">2dp</item>
+    </style>
+
+    <!-- EditText style -->
+    <style name="Widget.MyCocktailBar.EditText" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/cocktail_purple</item>
+        <item name="boxStrokeWidth">2dp</item>
+        <item name="boxStrokeWidthFocused">3dp</item>
+        <item name="hintTextColor">@color/cocktail_purple</item>
+        <item name="android:textColorHint">@color/gray_400</item>
+        <item name="placeholderTextColor">@color/gray_400</item>
     </style>
 </resources>

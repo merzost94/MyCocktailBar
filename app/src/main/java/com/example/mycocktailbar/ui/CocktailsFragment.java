@@ -30,6 +30,9 @@ public class CocktailsFragment extends Fragment implements Searchable {
         setupRecyclerView();
         setupViewModel();
         setupListeners();
+
+        // Устанавливаем кнопку "Доступные" как выбранную по умолчанию
+        binding.toggleView.check(R.id.btn_available);
     }
 
     private void setupRecyclerView() {
@@ -45,11 +48,15 @@ public class CocktailsFragment extends Fragment implements Searchable {
         viewModel = new ViewModelProvider(requireActivity()).get(CocktailViewModel.class);
 
         viewModel.getAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            adapter.setAvailableCocktails(cocktails);
+            if (!showAllCocktails) {
+                adapter.setAvailableCocktails(cocktails);
+            }
         });
 
         viewModel.getAlmostAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            adapter.setAlmostAvailableCocktails(cocktails);
+            if (!showAllCocktails) {
+                adapter.setAlmostAvailableCocktails(cocktails);
+            }
         });
 
         viewModel.getAllCocktails().observe(getViewLifecycleOwner(), cocktails -> {
@@ -59,7 +66,7 @@ public class CocktailsFragment extends Fragment implements Searchable {
         });
 
         viewModel.getSearchResults().observe(getViewLifecycleOwner(), cocktails -> {
-            if (cocktails != null) {
+            if (cocktails != null && cocktails.size() > 0) {
                 adapter.setAllCocktails(cocktails);
             }
         });
@@ -72,7 +79,7 @@ public class CocktailsFragment extends Fragment implements Searchable {
                 viewModel.loadAllCocktails();
             } else if (checkedId == R.id.btn_available && isChecked) {
                 showAllCocktails = false;
-                // Возвращаемся к обычному отображению
+                // Обновляем адаптер с текущими данными
                 adapter.setAvailableCocktails(viewModel.getAvailableCocktails().getValue());
                 adapter.setAlmostAvailableCocktails(viewModel.getAlmostAvailableCocktails().getValue());
             }
@@ -81,6 +88,13 @@ public class CocktailsFragment extends Fragment implements Searchable {
         binding.searchButton.setOnClickListener(v -> {
             String query = binding.searchInput.getText().toString().trim();
             search(query);
+        });
+
+        // Поиск при нажатии Enter на клавиатуре
+        binding.searchInput.setOnEditorActionListener((v, actionId, event) -> {
+            String query = binding.searchInput.getText().toString().trim();
+            search(query);
+            return true;
         });
     }
 
@@ -95,6 +109,10 @@ public class CocktailsFragment extends Fragment implements Searchable {
         if (query.isEmpty()) {
             if (showAllCocktails) {
                 viewModel.loadAllCocktails();
+            } else {
+                // Возвращаем обычное отображение
+                adapter.setAvailableCocktails(viewModel.getAvailableCocktails().getValue());
+                adapter.setAlmostAvailableCocktails(viewModel.getAlmostAvailableCocktails().getValue());
             }
         } else {
             viewModel.searchCocktails(query);
