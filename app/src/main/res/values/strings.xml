@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">My Cocktail Bar</string>
+    <string name="navigation_drawer_open">Open</string>
+    <string name="navigation_drawer_close">Close</string>
+
+    <string-array name="base_ingredients">
+        <item>Джин</item>
+        <item>Водка</item>
+        <item>Белый ром</item>
+        <item>Текила</item>
+        <item>Тройной сек (ликер)</item>
+        <item>Тоник</item>
+        <item>Содовая</item>
+        <item>Лайм</item>
+        <item>Лимон</item>
+        <item>Свежая мята</item>
+        <item>Тростниковый сахар</item>
+        <item>Ангостура</item>
+    </string-array>
+</resources>
