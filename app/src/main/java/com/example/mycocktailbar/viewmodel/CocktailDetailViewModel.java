@@ -1,4 +1,4 @@
-package com.example.mycocktailbar.viewmodels;
+package com.example.mycocktailbar.viewmodel;
 
 import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
@@ -10,23 +10,33 @@ import com.example.mycocktailbar.models.Ingredient;
 import java.util.List;
 
 public class CocktailDetailViewModel extends AndroidViewModel {
-    private AppDatabase database;
     private MutableLiveData<Cocktail> cocktail = new MutableLiveData<>();
-    private LiveData<List<Ingredient>> ingredients;
+    private MutableLiveData<List<Ingredient>> ingredients = new MutableLiveData<>();
 
     public CocktailDetailViewModel(Application application) {
         super(application);
-        database = AppDatabase.getInstance(application);
     }
 
     public void loadCocktail(long cocktailId) {
-        database.cocktailDao().getCocktailById(cocktailId).observeForever(cocktailData -> {
-            cocktail.postValue(cocktailData);
+        AppDatabase database = AppDatabase.getInstance(getApplication());
+
+        // Загружаем коктейль
+        database.cocktailDao().getCocktailById(cocktailId).observeForever(cocktail -> {
+            this.cocktail.setValue(cocktail);
         });
+
+        // Загружаем ингредиенты
+        loadIngredientsForCocktail(cocktailId);
     }
 
     public void loadIngredientsForCocktail(long cocktailId) {
-        ingredients = database.cocktailIngredientDao().getIngredientsForCocktail(cocktailId);
+        AppDatabase database = AppDatabase.getInstance(getApplication());
+
+        new Thread(() -> {
+            List<Ingredient> ingredientList = database.cocktailIngredientDao()
+                    .getIngredientsForCocktail(cocktailId);
+            ingredients.postValue(ingredientList);
+        }).start();
     }
 
     public LiveData<Cocktail> getCocktail() {

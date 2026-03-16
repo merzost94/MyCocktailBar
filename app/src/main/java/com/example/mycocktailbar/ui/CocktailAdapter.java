@@ -1,16 +1,26 @@
 package com.example.mycocktailbar.ui;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.mycocktailbar.databinding.ItemCocktailBinding;
-import com.example.mycocktailbar.models.Cocktail; // ИЗМЕНЕНО: model -> models
+import com.example.mycocktailbar.models.Cocktail;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.CocktailViewHolder> {
     private List<Cocktail> cocktails = new ArrayList<>();
+    private OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(Cocktail cocktail);
+    }
+
+    public CocktailAdapter(OnItemClickListener listener) {
+        this.listener = listener;
+    }
 
     @NonNull
     @Override
@@ -45,6 +55,11 @@ public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.Cockta
 
         void bind(Cocktail cocktail) {
             binding.setCocktail(cocktail);
+            binding.getRoot().setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onItemClick(cocktail);
+                }
+            });
             binding.executePendingBindings();
         }
     }

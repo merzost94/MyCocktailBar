@@ -2,45 +2,40 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/background_dark">
 
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/toggle_bar"
-            android:layout_width="wrap_content"
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            app:singleSelection="true"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_all"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Все"
-                style="?attr/materialButtonOutlinedStyle" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_my_bar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="В моём баре"
-                style="?attr/materialButtonOutlinedStyle" />
-
-        </com.google.android.material.button.MaterialButtonToggleGroup>
+            android:background="@drawable/search_background_dark"
+            app:queryHint="Поиск ингредиентов..."
+            app:searchHintIcon="@null"
+            app:iconifiedByDefault="false"
+            app:queryBackground="@android:color/transparent"
+            app:submitBackground="@android:color/transparent"/>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+            android:id="@+id/recyclerViewIngredients"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
+            android:layout_weight="1"
             android:padding="8dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toBottomOf="@id/toggle_bar"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            android:clipToPadding="false"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/emptyView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Ничего не найдено"
+            android:textSize="18sp"
+            android:textColor="@color/text_secondary_dark"
+            android:visibility="gone"/>
+    </LinearLayout>
 </layout>

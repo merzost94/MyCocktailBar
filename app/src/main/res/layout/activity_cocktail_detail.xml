@@ -1,98 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ScrollView
+    <data>
+        <variable
+            name="cocktail"
+            type="com.example.mycocktailbar.models.Cocktail" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/background_dark">
+        android:background="@color/background_light">
 
-        <LinearLayout
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_height="wrap_content">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@color/cocktail_dark_purple"
-                app:title="Детали коктейля"
-                app:titleTextColor="@color/white"
-                app:navigationIcon="?attr/homeAsUpIndicator"
-                app:navigationContentDescription="Назад" />
+                app:title="@{cocktail.name}"
+                app:titleCentered="true"
+                app:navigationIcon="?attr/homeAsUpIndicator" />
 
-            <ImageView
-                android:id="@+id/cocktailImage"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginTop="16dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_cocktail_placeholder"
-                android:background="@drawable/image_rounded_dark"
-                android:clipToOutline="true"
-                tools:src="@tools:sample/avatars" />
+        </com.google.android.material.appbar.AppBarLayout>
 
-            <TextView
-                android:id="@+id/cocktailName"
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                tools:text="Маргарита" />
+                android:orientation="vertical"
+                android:padding="16dp">
 
-            <TextView
-                android:id="@+id/cocktailDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textSize="16sp"
-                android:textColor="@color/gray_400"
-                tools:text="Классический коктейль на основе текилы" />
+                <!-- Изображение коктейля -->
+                <ImageView
+                    android:id="@+id/cocktailImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_cocktail_placeholder"
+                    android:background="@color/gray_300" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Ингредиенты:"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/white" />
+                <!-- Категория -->
+                <TextView
+                    android:id="@+id/categoryText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@{cocktail.category}"
+                    android:textSize="14sp"
+                    android:textColor="@color/white"
+                    android:background="@drawable/category_badge"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="4dp" />
 
-            <TextView
-                android:id="@+id/cocktailIngredients"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textSize="14sp"
-                android:textColor="@color/gray_400"
-                android:lineSpacingExtra="4dp"
-                tools:text="• Текила\n• Трипл сек\n• Сок лайма" />
+                <!-- Описание -->
+                <TextView
+                    android:id="@+id/descriptionText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@{cocktail.description}"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_secondary"
+                    android:lineSpacingExtra="4dp" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Инструкция:"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/white" />
+                <!-- Разделитель -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="16dp"
+                    android:background="@color/gray_400" />
 
-            <TextView
-                android:id="@+id/cocktailInstructions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textSize="14sp"
-                android:textColor="@color/gray_400"
-                android:lineSpacingExtra="4dp"
-                tools:text="1. Кромку бокала смочить соком лайма и окунуть в соль.\n2. Смешать в шейкере текилу, трипл сек и сок лайма.\n3. Процедить в бокал со льдом." />
+                <!-- Заголовок ингредиентов -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Ингредиенты:"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="8dp" />
 
-        </LinearLayout>
+                <!-- Список ингредиентов будет здесь -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/ingredientsRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false" />
 
-    </ScrollView>
+                <!-- Разделитель -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="16dp"
+                    android:background="@color/gray_400" />
+
+                <!-- Заголовок инструкции -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Инструкция приготовления:"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Инструкция -->
+                <TextView
+                    android:id="@+id/instructionsText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{cocktail.instructions}"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_secondary"
+                    android:lineSpacingExtra="4dp" />
+
+            </LinearLayout>
+        </ScrollView>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

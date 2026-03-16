@@ -60,4 +60,10 @@ public interface CocktailDao {
             "AND COUNT(DISTINCT ci.ingredientId) < " +
             "(SELECT COUNT(*) FROM cocktail_ingredient_cross_ref WHERE cocktailId = ci.cocktailId))")
     LiveData<List<Cocktail>> getAlmostAvailableCocktails();
+
+    @Query("SELECT * FROM cocktails WHERE name LIKE '%' || :query || '%'")
+    LiveData<List<Cocktail>> searchAllCocktails(String query);
+
+    @Query("SELECT * FROM cocktails WHERE id IN (SELECT cocktailId FROM cocktail_ingredient_cross_ref WHERE ingredientId IN (SELECT id FROM ingredients WHERE hasItem = 1)) AND name LIKE '%' || :query || '%'")
+    LiveData<List<Cocktail>> searchAvailableCocktails(String query);
 }

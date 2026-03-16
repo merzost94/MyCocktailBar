@@ -1,83 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.cardview.widget.CardView
+    <data>
+        <variable
+            name="cocktail"
+            type="com.example.mycocktailbar.models.Cocktail" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         app:cardCornerRadius="12dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="#2C2C2C">
+        app:cardBackgroundColor="@color/card_dark"
+        app:strokeColor="@color/gray_600"
+        app:strokeWidth="1dp"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="12dp">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <ImageView
-                android:id="@+id/cocktailImage"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_cocktail_placeholder"
-                android:background="@drawable/image_rounded_dark"
-                android:clipToOutline="true"
-                tools:src="@tools:sample/avatars" />
-
-            <LinearLayout
-                android:layout_width="0dp"
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="12dp"
-                android:orientation="vertical">
+                android:text="@{cocktail.name}"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary_dark"
+                android:layout_marginBottom="4dp"/>
 
-                <TextView
-                    android:id="@+id/cocktailName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white"
-                    tools:text="Маргарита" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{cocktail.category}"
+                android:textSize="12sp"
+                android:textColor="@color/white"
+                android:background="@drawable/category_badge"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="@{cocktail.category != null ? View.VISIBLE : View.GONE}"/>
 
-                <TextView
-                    android:id="@+id/cocktailCategory"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textSize="14sp"
-                    android:textColor="#BB86FC"
-                    android:background="#332200"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
-                    tools:text="Классика" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{cocktail.description}"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary_dark"
+                android:maxLines="2"
+                android:ellipsize="end"/>
 
-                <TextView
-                    android:id="@+id/cocktailDescription"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:maxLines="2"
-                    android:textSize="12sp"
-                    android:textColor="#BDBDBD"
-                    tools:text="Смешать текилу, ликер и сок лайма" />
-
-                <TextView
-                    android:id="@+id/cocktailStatus"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#4CAF50"
-                    tools:text="Можно приготовить" />
-
-            </LinearLayout>
+            <!-- Список ингредиентов -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ингредиенты будут здесь"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary_dark"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"/> <!-- Временно скрыто, пока не добавим логику -->
 
         </LinearLayout>
-
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 </layout>

@@ -1,5 +1,6 @@
 package com.example.mycocktailbar.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.mycocktailbar.databinding.FragmentCocktailsBinding;
 import com.example.mycocktailbar.viewmodel.CocktailViewModel;
-import com.example.mycocktailbar.models.Cocktail; // ИЗМЕНЕНО: model -> models
+import com.example.mycocktailbar.models.Cocktail;
 import com.google.android.material.tabs.TabLayout;
 import androidx.appcompat.widget.SearchView;
 import java.util.List;
@@ -45,7 +46,11 @@ public class CocktailsFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        adapter = new CocktailAdapter();
+        adapter = new CocktailAdapter(cocktail -> {
+            Intent intent = new Intent(getActivity(), CocktailDetailActivity.class);
+            intent.putExtra("cocktail_id", cocktail.getId());
+            startActivity(intent);
+        });
         binding.recyclerViewCocktails.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerViewCocktails.setAdapter(adapter);
     }

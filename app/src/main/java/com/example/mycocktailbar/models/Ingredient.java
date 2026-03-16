@@ -15,6 +15,7 @@ public class Ingredient {
         this.hasItem = hasItem;
     }
 
+    // Геттеры и сеттеры
     public long getId() {
         return id;
     }

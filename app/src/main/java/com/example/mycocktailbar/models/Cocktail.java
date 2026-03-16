@@ -2,6 +2,8 @@ package com.example.mycocktailbar.models;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.Ignore;
+import java.util.List;
 
 @Entity(tableName = "cocktails")
 public class Cocktail {
@@ -12,7 +14,10 @@ public class Cocktail {
     private String category;
     private String instructions;
     private String imageUrl;
+    @Ignore
+    private List<Ingredient> ingredients;
 
+    // Конструктор для Room
     public Cocktail(String name, String description, String category, String instructions, String imageUrl) {
         this.name = name;
         this.description = description;
@@ -21,6 +26,7 @@ public class Cocktail {
         this.imageUrl = imageUrl;
     }
 
+    // Геттеры и сеттеры
     public long getId() {
         return id;
     }
@@ -67,5 +73,13 @@ public class Cocktail {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public List<Ingredient> getIngredients() {
+        return ingredients;
+    }
+
+    public void setIngredients(List<Ingredient> ingredients) {
+        this.ingredients = ingredients;
     }
 }
