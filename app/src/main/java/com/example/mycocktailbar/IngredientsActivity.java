@@ -7,6 +7,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.example.mycocktailbar.R;
 import com.example.mycocktailbar.databinding.ActivityIngredientsBinding;
 import com.example.mycocktailbar.database.AppDatabase;
 import com.example.mycocktailbar.models.Ingredient;
