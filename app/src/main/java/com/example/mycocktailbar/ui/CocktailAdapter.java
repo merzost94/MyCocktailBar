@@ -56,18 +56,26 @@ public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.ViewHo
 
     private void updateCurrentList() {
         showAllMode = false;
-        currentList.clear();
-        currentList.addAll(availableCocktails);
-        currentList.addAll(almostAvailableCocktails);
+        currentList = new ArrayList<>();
+        if (availableCocktails != null) {
+            currentList.addAll(availableCocktails);
+        }
+        if (almostAvailableCocktails != null) {
+            currentList.addAll(almostAvailableCocktails);
+        }
         notifyDataSetChanged();
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        if (position >= currentList.size()) return;
+
         Cocktail cocktail = currentList.get(position);
-        holder.binding.cocktailName.setText(cocktail.getName());
-        holder.binding.cocktailCategory.setText(cocktail.getCategory());
-        holder.binding.cocktailDescription.setText(cocktail.getDescription());
+        if (cocktail == null) return;
+
+        holder.binding.cocktailName.setText(cocktail.getName() != null ? cocktail.getName() : "");
+        holder.binding.cocktailCategory.setText(cocktail.getCategory() != null ? cocktail.getCategory() : "");
+        holder.binding.cocktailDescription.setText(cocktail.getDescription() != null ? cocktail.getDescription() : "");
 
         Glide.with(holder.itemView.getContext())
                 .load(cocktail.getImageUrl())
@@ -77,17 +85,21 @@ public class CocktailAdapter extends RecyclerView.Adapter<CocktailAdapter.ViewHo
         if (!showAllMode) {
             holder.binding.cocktailStatus.setVisibility(View.VISIBLE);
             if (availableCocktails.contains(cocktail)) {
-                holder.binding.cocktailStatus.setText("✅ Можно приготовить");
+                holder.binding.cocktailStatus.setText("Можно приготовить");
                 holder.binding.cocktailStatus.setTextColor(0xFF4CAF50);
             } else {
-                holder.binding.cocktailStatus.setText("⚠️ Почти готов (не хватает 1-2)");
+                holder.binding.cocktailStatus.setText("Почти готов (не хватает 1-2)");
                 holder.binding.cocktailStatus.setTextColor(0xFFFFA000);
             }
         } else {
             holder.binding.cocktailStatus.setVisibility(View.GONE);
         }
 
-        holder.itemView.setOnClickListener(v -> listener.onCocktailClick(cocktail));
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null && cocktail != null) {
+                listener.onCocktailClick(cocktail);
+            }
+        });
     }
 
     @Override

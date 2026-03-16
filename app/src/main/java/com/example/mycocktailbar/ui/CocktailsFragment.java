@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.mycocktailbar.R;
 import com.example.mycocktailbar.databinding.FragmentCocktailsBinding;
 import com.example.mycocktailbar.viewmodels.CocktailViewModel;
+import java.util.ArrayList;
 
 public class CocktailsFragment extends Fragment implements Searchable {
     private FragmentCocktailsBinding binding;
@@ -39,7 +40,11 @@ public class CocktailsFragment extends Fragment implements Searchable {
 
     private void setupRecyclerView() {
         adapter = new CocktailAdapter(cocktail -> {
-            startActivity(CocktailDetailActivity.createIntent(requireContext(), cocktail.getId()));
+            if (cocktail != null && cocktail.getId() > 0) {
+                startActivity(CocktailDetailActivity.createIntent(requireContext(), cocktail.getId()));
+            } else {
+                Toast.makeText(getContext(), "Ошибка загрузки коктейля", Toast.LENGTH_SHORT).show();
+            }
         });
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -51,22 +56,34 @@ public class CocktailsFragment extends Fragment implements Searchable {
 
         // Наблюдаем за списком доступных коктейлей
         viewModel.getAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            if (!showAllMode && cocktails != null) {
-                adapter.setAvailableCocktails(cocktails);
+            if (!showAllMode) {
+                if (cocktails != null) {
+                    adapter.setAvailableCocktails(cocktails);
+                } else {
+                    adapter.setAvailableCocktails(new ArrayList<>());
+                }
             }
         });
 
         // Наблюдаем за списком почти доступных коктейлей
         viewModel.getAlmostAvailableCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            if (!showAllMode && cocktails != null) {
-                adapter.setAlmostAvailableCocktails(cocktails);
+            if (!showAllMode) {
+                if (cocktails != null) {
+                    adapter.setAlmostAvailableCocktails(cocktails);
+                } else {
+                    adapter.setAlmostAvailableCocktails(new ArrayList<>());
+                }
             }
         });
 
         // Наблюдаем за списком всех коктейлей
         viewModel.getAllCocktails().observe(getViewLifecycleOwner(), cocktails -> {
-            if (showAllMode && cocktails != null) {
-                adapter.setAllCocktails(cocktails);
+            if (showAllMode) {
+                if (cocktails != null) {
+                    adapter.setAllCocktails(cocktails);
+                } else {
+                    adapter.setAllCocktails(new ArrayList<>());
+                }
             }
         });
 
@@ -76,6 +93,9 @@ public class CocktailsFragment extends Fragment implements Searchable {
                 adapter.setAllCocktails(cocktails);
             } else if (cocktails != null && cocktails.isEmpty()) {
                 Toast.makeText(getContext(), "Ничего не найдено", Toast.LENGTH_SHORT).show();
+                if (showAllMode) {
+                    viewModel.loadAllCocktails();
+                }
             }
         });
 
