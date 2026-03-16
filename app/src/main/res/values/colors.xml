@@ -9,6 +9,14 @@
     <color name="cocktail_dark_gold">#FFA000</color>
     <color name="cocktail_light_gold">#FFECB3</color>
 
+    <!-- Добавляем недостающие цвета -->
+    <color name="cocktail_green">#4CAF50</color>
+    <color name="cocktail_dark_green">#388E3C</color>
+    <color name="cocktail_light_green">#C8E6C9</color>
+
+    <color name="cocktail_red">#F44336</color>
+    <color name="cocktail_dark_red">#D32F2F</color>
+
     <!-- Цвета для темной темы -->
     <color name="background_dark">#121212</color>
     <color name="surface_dark">#1E1E1E</color>
